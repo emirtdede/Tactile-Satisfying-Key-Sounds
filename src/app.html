@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tactile</title>
+    <!-- Use system font or inter if available -->
+    <link rel="stylesheet" href="./assets/app.css">
+</head>
+<body>
+    <div class="window-container">
+        <!-- Titlebar -->
+        <header class="titlebar">
+            <div class="drag-region">
+                <div class="brand">
+                    <span>Tactile</span>
+                </div>
+            </div>
+            <div class="window-controls">
+                <button id="btn-min" class="win-btn">_</button>
+                <button id="btn-max" class="win-btn">□</button>
+                <button id="btn-close" class="win-btn close-btn">✕</button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="layout">
+            <!-- Sidebar -->
+            <nav class="sidebar">
+                <div class="sidebar-header">
+                    <img src="../public/Tactile.svg" alt="Tactile Logo" class="app-brand-logo">
+                    <div class="app-brand-meta">
+                        <div class="app-brand-name">Tactile</div>
+                        <div class="app-brand-subtitle">Satisfying Key Sounds</div>
+                    </div>
+                </div>
+                
+                <div class="nav-group">
+                    <div class="nav-title-container" style="display: flex; justify-content: space-between; align-items: center; padding-right: 8px;">
+                        <div class="nav-title">Sound Profiles</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button class="btn-edit-categories" id="btn-edit-categories" title="Manage Categories" style="background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn-add-category" id="btn-add-category" title="New Category" style="background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</button>
+                        </div>
+                    </div>
+                    <div id="dynamic-categories-list" style="display: flex; flex-direction: column; gap: 4px;">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+
+                
+                <div class="spacer"></div>
+                
+                <div class="nav-group footer-nav">
+                    <button class="nav-item" data-view="settings">Settings</button>
+                    <button class="nav-item" data-view="about">About / Legal</button>
+                </div>
+                
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Local User</div>
+                        <div class="user-role">Windows</div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                
+                <!-- Top Toolbar -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search profiles...">
+                    </div>
+                    <div class="global-controls">
+                        <span class="active-profile-badge" id="active-profile-name">No Profile Active</span>
+                        <div class="volume-control">
+                            <label>Volume</label>
+                            <input type="range" id="global-volume" min="0" max="100" value="50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Views Container -->
+                <div class="views-container">
+                    
+                    <!-- Profiles View (Linear/Tactile/Clicky) -->
+                    <div id="view-profiles" class="view active">
+                        <div class="profiles-header-actions">
+                            <div class="filters">
+                                <button class="chip active">All</button>
+                                <button class="chip">PBT</button>
+                                <button class="chip">ABS</button>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn primary" id="btn-create-profile-modal">+ New Sound (Profile)</button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid" id="profiles-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                                        <!-- Custom Sounds View -->
+                    <div id="view-custom" class="view">
+                        <div class="custom-layout">
+                            <div class="custom-card-import">
+                                <div class="drag-drop-zone" id="drop-zone">
+                                    <div class="drop-icon">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                    </div>
+                                    <h3>Drag & Drop Sound Folders</h3>
+                                    <p>Drop your sound pack folders here to import them as a new sound profile.</p>
+                                    <button class="btn primary" id="btn-select-folder">Select Sound Folder</button>
+                                </div>
+                            </div>
+                            
+
+                        </div>
+
+                        <div class="grid" id="custom-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Settings View -->
+                    <div id="view-settings" class="view">
+                        <h2>Settings</h2>
+                        <div class="section-divider">⚙ GENERAL</div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Mute Sounds</h3>
+                                <p>Temporarily disable key sound feedback.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-mute">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Start with Windows</h3>
+                                <p>Tactile runs automatically in the background when the PC starts.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-startup">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Minimize to Tray</h3>
+                                <p>Keep Tactile running in the system tray when closing the window.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-tray">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <!-- About View -->
+                    <div id="view-about" class="view">
+                        <div class="about-container">
+                            <img src="../public/Tactile.svg" alt="Tactile" class="about-app-logo">
+                            <h2>Tactile</h2>
+                            <p class="version" id="app-version-display">Version 1.0.0</p>
+                            <p class="about-subtitle">Satisfying mechanical keyboard switch feedback for your daily workflow.</p>
+                            
+                            <div class="developer-card">
+                                <img src="../public/Vellium-logo.svg" alt="Vellium Logo" class="developer-logo">
+                                <div class="developer-info">
+                                    <span class="dev-label">DEVELOPER</span>
+                                    <span class="dev-name">Vellium.dev</span>
+                                    <a href="#" id="link-website" class="dev-link">vellium.dev</a>
+                                </div>
+                                <button class="btn dev-btn" id="btn-web-site">Web Site</button>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <span class="legal-label">LEGAL</span>
+                                <div class="legal-item" id="link-terms">
+                                    <div class="legal-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            <polyline points="10 9 9 9 8 9"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div class="legal-text">
+                                        <span class="legal-title">Terms of Use (EULA)</span>
+                                        <span class="legal-desc">End user license agreement</span>
+                                    </div>
+                                    <span class="arrow-icon">❯</span>
+                                </div>
+                                <div class="legal-item" id="link-privacy">
+                                    <div class="legal-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="legal-text">
+                                        <span class="legal-title">Privacy Policy</span>
+                                        <span class="legal-desc">Data collection and privacy information</span>
+                                    </div>
+                                    <span class="arrow-icon">❯</span>
+                                </div>
+                            </div>
+                            
+                            <div class="about-footer-text">
+                                Copyright © 2026 Vellium. All rights reserved.<br>
+                                Tactile is a registered product of Vellium. dev.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Profile Creation Modal Overlay -->
+    <div class="modal-overlay" id="create-profile-modal">
+        <div class="modal-card">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span>Create New Sound List (Profile)</span>
+                </div>
+                <button class="modal-close-btn" id="modal-create-close-x">✕</button>
+            </header>
+            
+            <div class="modal-content">
+                <div class="form-group">
+                    <label for="input-new-profile-name">Profile (List) Name</label>
+                    <input type="text" id="input-new-profile-name" class="form-input" placeholder="e.g. My custom mechanical switches">
+                </div>
+                <div class="form-group">
+                    <label for="input-new-profile-desc">Description</label>
+                    <input type="text" id="input-new-profile-desc" class="form-input" placeholder="e.g. Premium Linear switch sound profile.">
+                </div>
+                <div class="form-group">
+                    <label for="select-new-profile-type">Switch Type</label>
+                    <select id="select-new-profile-type" class="form-select">
+                        <option value="Linear">Linear</option>
+                        <option value="Tactile">Tactile</option>
+                        <option value="Clicky">Clicky</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="select-new-profile-material">Material</label>
+                    <select id="select-new-profile-material" class="form-select">
+                        <option value="PBT">PBT</option>
+                        <option value="ABS">ABS</option>
+                        <option value="Mixed">Mixed</option>
+                        <option value="__NEW__">+ Add New Material...</option>
+                    </select>
+                </div>
+                <div class="form-group material-new-input-wrap" id="wrap-new-profile-material-new" style="display: none; max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;">
+                    <label for="input-new-profile-material-new">New Material Name</label>
+                    <input type="text" id="input-new-profile-material-new" class="form-input" placeholder="e.g. Pom, Brass, Steel">
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <span>Creates an empty custom pack.</span>
+                <button class="btn primary" id="modal-create-save-btn">Create List</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Add Sound / Remap Key Modal Overlay -->
+    <div class="modal-overlay" id="add-sound-modal">
+        <div class="modal-card">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V5l12-2v13"></path>
+                            <circle cx="6" cy="18" r="3"></circle>
+                            <circle cx="18" cy="16" r="3"></circle>
+                        </svg>
+                    </span>
+                    <span>Add Sound to List (Profile)</span>
+                </div>
+                <button class="modal-close-btn" id="modal-add-close-x">✕</button>
+            </header>
+            
+            <div class="modal-content">
+                <input type="hidden" id="input-add-sound-profile-id">
+                <div class="form-group">
+                    <label for="input-add-sound-title">Sound Title / Switch Name</label>
+                    <input type="text" id="input-add-sound-title" class="form-input" placeholder="e.g. Space press, Cherry Blue Click">
+                </div>
+                <div class="form-group">
+                    <label for="input-add-sound-desc">Description</label>
+                    <input type="text" id="input-add-sound-desc" class="form-input" placeholder="e.g. Deep sound signature press">
+                </div>
+                <div class="form-group">
+                    <label for="input-add-sound-keycode">Assign to Keycode (e.g. 57: Space, 28: Enter, 14: Backspace)</label>
+                    <input type="number" id="input-add-sound-keycode" class="form-input" placeholder="Enter keycode number" min="1" value="57">
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <span>Select file to assign:</span>
+                <button class="btn primary" id="modal-add-select-btn">Choose Audio & Save</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Edit Profile Detail Modal Overlay -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal-card">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
+                        </svg>
+                    </span>
+                    <span>Edit Profile Details</span>
+                </div>
+                <button class="modal-close-btn" id="modal-edit-close-x">✕</button>
+            </header>
+            
+            <div class="modal-content">
+                <input type="hidden" id="input-edit-profile-id">
+                <div class="form-group">
+                    <label for="input-edit-profile-name">Profile Name</label>
+                    <input type="text" id="input-edit-profile-name" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="select-edit-profile-type">Category</label>
+                    <select id="select-edit-profile-type" class="form-select">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="select-edit-profile-material">Material</label>
+                    <select id="select-edit-profile-material" class="form-select">
+                        <option value="PBT">PBT</option>
+                        <option value="ABS">ABS</option>
+                        <option value="Mixed">Mixed</option>
+                        <option value="__NEW__">+ Add New Material...</option>
+                    </select>
+                </div>
+                <div class="form-group material-new-input-wrap" id="wrap-edit-profile-material-new" style="display: none; max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;">
+                    <label for="input-edit-profile-material-new">New Material Name</label>
+                    <input type="text" id="input-edit-profile-material-new" class="form-input" placeholder="e.g. Pom, Brass, Steel">
+                </div>
+                <div class="form-group">
+                    <label for="input-edit-profile-desc">Description</label>
+                    <input type="text" id="input-edit-profile-desc" class="form-input">
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <button class="btn" id="modal-edit-delete-btn" style="background: rgba(232, 17, 35, 0.2); border-color: #E81123; color: white;">Delete Profile</button>
+                <button class="btn primary" id="modal-edit-save-btn">Save Changes</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Add Category Modal Overlay -->
+    <div class="modal-overlay" id="create-category-modal">
+        <div class="modal-card">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </span>
+                    <span>Create New Category List</span>
+                </div>
+                <button class="modal-close-btn" id="modal-category-close-x">✕</button>
+            </header>
+            
+            <div class="modal-content">
+                <div class="form-group">
+                    <label for="input-new-category-name">Category Name</label>
+                    <input type="text" id="input-new-category-name" class="form-input" placeholder="e.g. Tactile Custom, Clicky Premium">
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <span>Adds new category list to sidebar.</span>
+                <button class="btn primary" id="modal-category-save-btn">Create Category</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Legal Modal Overlay -->
+    <div class="modal-overlay" id="legal-modal">
+        <div class="modal-card">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span id="modal-title-text">Terms of Use (EULA)</span>
+                </div>
+                <button class="modal-close-btn" id="modal-close-x">✕</button>
+            </header>
+            
+            <div class="modal-content" id="modal-body-content">
+                <!-- Loaded dynamically by JS -->
+            </div>
+            
+            <footer class="modal-footer">
+                <a href="#" id="modal-external-link" class="modal-link">vellium.dev/terms</a>
+                <button class="btn primary" id="modal-ok-btn">Tamam</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div class="custom-context-menu" id="custom-context-menu" style="display: none; position: fixed; z-index: 10000; background: #162432; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 160px; padding: 6px 0;">
+        <button class="context-item" id="context-rename-cat" style="background: transparent; border: none; color: var(--text-primary); text-align: left; padding: 8px 16px; font-size: 13px; width: 100%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 8px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
+            </svg>
+            Rename
+        </button>
+        <button class="context-item" id="context-delete-cat" style="background: transparent; border: none; color: #E81123; text-align: left; padding: 8px 16px; font-size: 13px; width: 100%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 8px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E81123" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Delete
+        </button>
+    </div>
+
+    <!-- Manage Categories Modal Overlay -->
+    <div class="modal-overlay" id="manage-categories-modal">
+        <div class="modal-card">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </span>
+                    <span>Manage Categories</span>
+                </div>
+                <button class="modal-close-btn" id="modal-manage-close-x">✕</button>
+            </header>
+            
+            <div class="modal-content">
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">Drag and drop categories to reorder them in the sidebar.</p>
+                <div id="manage-categories-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+            
+            <footer class="modal-footer">
+                <span>Drag to sort list.</span>
+                <button class="btn primary" id="modal-manage-ok-btn">Done</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Custom Dialog / Notification System overlay -->
+    <div class="modal-overlay" id="custom-dialog-overlay" style="z-index: 11000;">
+        <div class="modal-card" style="width: 420px;">
+            <header class="modal-header">
+                <div class="modal-header-title">
+                    <span class="modal-icon" id="dialog-icon-slot">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </span>
+                    <span id="dialog-title-text">Notification</span>
+                </div>
+            </header>
+            <div class="modal-content" style="padding: 20px;">
+                <p id="dialog-body-message" style="color: var(--text-primary); font-size: 14px; margin-bottom: 16px;"></p>
+                <div id="dialog-input-group" style="display: none;" class="form-group">
+                    <input type="text" id="dialog-prompt-input" class="form-input" style="width: 100%;">
+                </div>
+            </div>
+            <footer class="modal-footer" style="justify-content: flex-end; gap: 12px;">
+                <button class="btn" id="dialog-cancel-btn" style="display: none;">Cancel</button>
+                <button class="btn primary" id="dialog-confirm-btn">OK</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="./assets/howler.min.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>

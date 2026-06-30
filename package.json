@@ -1,0 +1,108 @@
+{
+  "name": "tactile",
+  "productName": "Tactile",
+  "version": "1.0.0",
+  "description": "Transform your keyboard into a premium mechanical experience with satisfying sound profiles that boost your focus and typing rhythm.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:all": "electron-builder -wml",
+    "build:win": "electron-builder -w",
+    "build:mac": "electron-builder -m",
+    "build:linux": "electron-builder -l",
+    "build:clean": "node tools/clean-dist.js"
+  },
+  "keywords": [],
+  "homepage": "https://vellium.dev",
+  "author": {
+    "name": "Vellium",
+    "email": "support@vellium.dev"
+  },
+  "license": "MIT",
+  "build": {
+    "appId": "dev.vellium.tactile",
+    "copyright": "Copyright © 2026 Vellium. All rights reserved.",
+    "appx": {
+      "publisher": "CN=VelliumPublisher",
+      "identityName": "TactileApp",
+      "applicationId": "Tactile",
+      "publisherDisplayName": "Vellium"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "include": "./build/installer.nsh"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "appx",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "src/assets/icon.png"
+    },
+    "mac": {
+      "category": "public.app-category.entertainment",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "src/assets/icon.png"
+    },
+    "linux": {
+      "category": "Utility",
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "snap",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "src/assets/icon.png"
+    }
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "easy-volume": "^1.1.0",
+    "electron-fetch": "^1.9.1",
+    "electron-log": "^4.4.8",
+    "electron-store": "^6.0.0",
+    "fs-extra": "^9.0.1",
+    "glob": "^7.1.6",
+    "howler": "^2.2.4",
+    "mime-types": "^2.1.35",
+    "sharp": "^0.35.2",
+    "sql.js": "^1.8.0",
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
+    "electron": "^12.2.3",
+    "electron-builder": "^24.13.3"
+  }
+}
