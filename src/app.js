@@ -268,7 +268,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load initial data
     settings = await window.api.getSettings();
     profiles = await window.api.getProfiles();
+    
+    // Set active profile on startup to load sounds into memory
     active_profile_id = settings.selected_profile;
+    if (active_profile_id && active_profile_id !== 'default') {
+        setActiveProfile(active_profile_id);
+    } else if (profiles.length > 0) {
+        setActiveProfile(profiles[0].id);
+    }
 
     // Apply saved language before applying dynamic translations
     const savedLang = settings.language || 'tr';
