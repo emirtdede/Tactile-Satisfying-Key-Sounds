@@ -368,7 +368,43 @@ ipcMain.handle('db-update-setting', (e, key, value) => {
 });
 
 ipcMain.handle('db-get-profiles', () => db.getProfiles());
-ipcMain.handle('db-get-profile-details', (e, id) => db.getProfileDetails(id));
+ipcMain.handle('db-get-profile-details', (e, id) => {
+    const details = db.getProfileDetails(id);
+    if (details) {
+        // Read file and convert to Base64 for safe CORS-free preview loading in renderer
+        if (details.key_define_type === 'single' || !details.key_define_type) {
+            const fullPath = path.join(details.folder_path, details.sound_file || '');
+            if (details.sound_file && fs.existsSync(fullPath)) {
+                const ext = path.extname(fullPath).toLowerCase().replace('.', '');
+                const mimeType = ext === 'mp3' ? 'audio/mpeg' : ext === 'ogg' ? 'audio/ogg' : 'audio/wav';
+                try {
+                    const base64Data = fs.readFileSync(fullPath).toString('base64');
+                    details.sound_base64 = `data:${mimeType};base64,${base64Data}`;
+                } catch (err) {
+                    console.error("Failed to read preview sound file:", fullPath, err);
+                }
+            }
+        } else {
+            // Multi-type pack: convert the first key sound file to Base64
+            const firstKey = Object.keys(details.defines)[0];
+            if (firstKey) {
+                const fileName = Array.isArray(details.defines[firstKey]) ? details.defines[firstKey][0] : details.defines[firstKey];
+                const fullPath = path.join(details.folder_path, fileName || '');
+                if (fileName && fs.existsSync(fullPath)) {
+                    const ext = path.extname(fullPath).toLowerCase().replace('.', '');
+                    const mimeType = ext === 'mp3' ? 'audio/mpeg' : ext === 'ogg' ? 'audio/ogg' : 'audio/wav';
+                    try {
+                        const base64Data = fs.readFileSync(fullPath).toString('base64');
+                        details.sound_base64 = `data:${mimeType};base64,${base64Data}`;
+                    } catch (err) {
+                        console.error("Failed to read preview multi file:", fullPath, err);
+                    }
+                }
+            }
+        }
+    }
+    return details;
+});
 ipcMain.handle('db-delete-profile', (e, id) => db.deleteProfile(id));
 ipcMain.handle('db-update-profile-order', (e, ids) => db.updateProfileOrder(ids));
 ipcMain.handle('db-update-profile-details', (e, id, name, type, material, desc) => db.updateProfileDetails(id, name, type, material, desc));

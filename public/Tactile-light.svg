@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGlowLight" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F4F6F9" />
+    </radialGradient>
+  </defs>
+
+  <!-- White background -->
+  <rect width="500" height="500" fill="url(#bgGlowLight)" rx="24"/>
+
+  <!-- Shadow -->
+  <polygon points="170,330 250,370 330,330 250,290" fill="rgba(0, 0, 0, 0.15)"/>
+
+  <!-- Main cube body (original dark navy colors) -->
+  <polygon points="170,260 250,300 250,350 170,310" fill="#152533" stroke="#D4AF37" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="250,300 330,260 330,310 250,350" fill="#1E354A" stroke="#D4AF37" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="250,220 330,260 250,300 170,260" fill="#1A2E40" stroke="#D4AF37" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Small gold cube on top -->
+  <polygon points="234,240 250,248 250,268 234,260" fill="#B08D27"/>
+  <polygon points="250,248 266,240 266,260 250,268" fill="#8C701F"/>
+  <polygon points="250,232 266,240 250,248 234,240" fill="#D4AF37"/>
+
+  <!-- Dashed lines -->
+  <polyline points="180,180 250,145 320,180" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="250" y1="115" x2="250" y2="145" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5"/>
+
+  <!-- Upper transparent cube -->
+  <polygon points="250,115 300,140 250,165 200,140" fill="rgba(212, 175, 55, 0.15)" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="200,140 250,165 250,215 180,180" fill="rgba(26, 46, 64, 0.75)" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="250,165 300,140 320,180 250,215" fill="rgba(26, 46, 64, 0.45)" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Sound waves -->
+  <path d="M 345,170 Q 375,200 345,230" fill="none" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 365,150 Q 405,200 365,250" fill="none" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+</svg>

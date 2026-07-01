@@ -7,6 +7,7 @@ let active_profile_id = null;
 let settings = {};
 let categories = [];
 let materials = ['PBT', 'ABS', 'Mixed'];
+let active_preview_howl = null; // Currently playing preview sound instance
 
 // Custom Dialog Promise wrappers
 function showCustomAlert(message, title = t('dialog.notification')) {
@@ -404,10 +405,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('setting-tray').checked = settings.tray_icon === 'true';
     document.getElementById('setting-startup').checked = settings.start_minimized === 'true'; // Map to start minimized / startup behavior
     
+    // Helper to stop and unload any active preview
+    const stopPreview = () => {
+        if (active_preview_howl) {
+            try {
+                active_preview_howl.stop();
+                active_preview_howl.unload();
+            } catch (err) {}
+            active_preview_howl = null;
+        }
+    };
+
     // Mute UI Control & Synchronization
     const btnMute = document.getElementById('btn-toggle-mute');
     function updateMuteUI(isMuted) {
         if (isMuted) {
+            stopPreview();
             btnMute.innerHTML = `
                 <svg class="volume-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -477,6 +490,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Settings event listeners
     document.getElementById('global-volume').addEventListener('input', (e) => {
         window.api.updateSetting('volume', e.target.value);
+        const hVol = parseInt(e.target.value) / 100;
+        if (active_preview_howl) {
+            try {
+                active_preview_howl.volume(hVol);
+            } catch (err) {}
+        }
     });
 
     document.getElementById('setting-tray').addEventListener('change', (e) => {
@@ -512,6 +531,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('global-volume').value = vol;
         const hVol = vol / 100;
         Object.values(audio_instances).forEach(h => h.volume(hVol));
+        if (active_preview_howl) {
+            try {
+                active_preview_howl.volume(hVol);
+            } catch (err) {}
+        }
     });
 
     // Apply initial values for new settings
@@ -1397,6 +1421,14 @@ function renderProfiles(type = current_view) {
 }
 
 async function setActiveProfile(id) {
+    if (active_preview_howl) {
+        try {
+            active_preview_howl.stop();
+            active_preview_howl.unload();
+        } catch (e) {}
+        active_preview_howl = null;
+    }
+
     active_profile_id = id;
     await window.api.setActiveProfile(id);
     
@@ -1426,15 +1458,30 @@ function updateActiveProfileBadge() {
 }
 
 async function previewProfile(id) {
+    // Stop any currently playing preview
+    if (active_preview_howl) {
+        try {
+            active_preview_howl.stop();
+            active_preview_howl.unload();
+        } catch (e) {
+            console.warn("Error stopping previous preview:", e);
+        }
+        active_preview_howl = null;
+    }
+
     const details = await window.api.getProfileDetails(id);
     if (!details) return;
     
-    // Play a preview sound directly in UI using HTML5 Audio (bypasses file:/// XHR CORS restrictions)
+    // Play a preview sound using Web Audio API (CORS-free via Base64 sent from Main Process)
     const play_type = details.key_define_type || 'single';
     const vol = parseInt(document.getElementById('global-volume').value) / 100;
+    const srcPath = details.sound_base64;
+    if (!srcPath) {
+        console.error("Preview failed: sound_base64 is not populated by Main Process");
+        return;
+    }
     
     if (play_type === 'single') {
-        const srcPath = details.sound_base64 || `file:///${details.folder_path.replace(/\\/g, '/')}/${details.sound_file}`;
         const format = details.sound_format ? [details.sound_format] : undefined;
         const defines = details.defines || {}; 
         
@@ -1453,57 +1500,83 @@ async function previewProfile(id) {
                 format: format,
                 sprite: formattedSprite,
                 volume: vol,
-                html5: true,
+                html5: false, // Safe with Web Audio since we are using Base64 Data URI
                 preload: true,
                 onloaderror: (id, err) => {
                     console.error("Preview load error (single-sprite):", err);
                     previewHowl.unload();
+                    if (active_preview_howl === previewHowl) active_preview_howl = null;
                 }
             });
+            active_preview_howl = previewHowl;
             previewHowl.once('load', () => {
                 previewHowl.play(testKey);
             });
-            previewHowl.once('end', () => previewHowl.unload());
-            previewHowl.once('playerror', () => previewHowl.unload());
+            previewHowl.once('end', () => {
+                previewHowl.unload();
+                if (active_preview_howl === previewHowl) active_preview_howl = null;
+            });
+            previewHowl.once('playerror', () => {
+                previewHowl.unload();
+                if (active_preview_howl === previewHowl) active_preview_howl = null;
+            });
         } else {
             const previewHowl = new Howl({
                 src: [srcPath],
                 format: format,
                 volume: vol,
-                html5: true,
+                html5: false,
                 preload: true,
                 onloaderror: (id, err) => {
                     console.error("Preview load error (single-no-sprite):", err);
                     previewHowl.unload();
+                    if (active_preview_howl === previewHowl) active_preview_howl = null;
                 }
             });
+            active_preview_howl = previewHowl;
             previewHowl.once('load', () => {
+                // For custom spriteless profile, ensure __default exists
+                if (!previewHowl._sprite || !previewHowl._sprite.__default) {
+                    previewHowl._sprite = previewHowl._sprite || {};
+                    if (previewHowl._duration > 0) {
+                        previewHowl._sprite.__default = [0, previewHowl._duration * 1000];
+                    }
+                }
                 previewHowl.play();
             });
-            previewHowl.once('end', () => previewHowl.unload());
-            previewHowl.once('playerror', () => previewHowl.unload());
+            previewHowl.once('end', () => {
+                previewHowl.unload();
+                if (active_preview_howl === previewHowl) active_preview_howl = null;
+            });
+            previewHowl.once('playerror', () => {
+                previewHowl.unload();
+                if (active_preview_howl === previewHowl) active_preview_howl = null;
+            });
         }
     } else {
         // Multi
-        const firstKey = Object.keys(details.defines)[0];
-        if (firstKey) {
-            const fileName = Array.isArray(details.defines[firstKey]) ? details.defines[firstKey][0] : details.defines[firstKey];
-            const srcPath = `file:///${details.folder_path.replace(/\\/g, '/')}/${fileName}`;
-            const previewHowl = new Howl({
-                src: [srcPath],
-                volume: vol,
-                html5: true,
-                preload: true,
-                onloaderror: (id, err) => {
-                    console.error("Preview load error (multi):", err);
-                    previewHowl.unload();
-                }
-            });
-            previewHowl.once('load', () => {
-                previewHowl.play();
-            });
-            previewHowl.once('end', () => previewHowl.unload());
-            previewHowl.once('playerror', () => previewHowl.unload());
-        }
+        const previewHowl = new Howl({
+            src: [srcPath],
+            volume: vol,
+            html5: false,
+            preload: true,
+            onloaderror: (id, err) => {
+                console.error("Preview load error (multi):", err);
+                previewHowl.unload();
+                if (active_preview_howl === previewHowl) active_preview_howl = null;
+            }
+        });
+        active_preview_howl = previewHowl;
+        previewHowl.once('load', () => {
+            previewHowl.play();
+        });
+        previewHowl.once('end', () => {
+            previewHowl.unload();
+            if (active_preview_howl === previewHowl) active_preview_howl = null;
+        });
+        previewHowl.once('playerror', () => {
+            previewHowl.unload();
+            if (active_preview_howl === previewHowl) active_preview_howl = null;
+        });
     }
 }
