@@ -90,7 +90,16 @@ function loadProfileIntoMemory(profileId) {
     let soundData = { type: play_type };
     
     if (play_type === 'single') {
-        soundData.src = [`file:///${path.join(profile.folder_path, profile.sound_file).replace(/\\/g, '/')}`];
+        const fullPath = path.join(profile.folder_path, profile.sound_file || '');
+        if (profile.sound_file && fs.existsSync(fullPath)) {
+            const ext = path.extname(fullPath).toLowerCase().replace('.', '');
+            const mimeType = ext === 'mp3' ? 'audio/mpeg' : ext === 'ogg' ? 'audio/ogg' : 'audio/wav';
+            const base64Data = fs.readFileSync(fullPath).toString('base64');
+            soundData.src = [`data:${mimeType};base64,${base64Data}`];
+            soundData.format = [ext];
+        } else {
+            soundData.src = [`file:///${fullPath.replace(/\\/g, '/')}`];
+        }
         soundData.sprite = keycodesRemap(profile.defines);
     } else {
         soundData.data = {};
@@ -120,7 +129,20 @@ function loadProfileIntoMemory(profileId) {
             let file_name = remapped[kc] || fallback_file;
             if (Array.isArray(file_name)) file_name = file_name[0];
             if (file_name) {
-                soundData.data[kc] = { src: `file:///${path.join(profile.folder_path, file_name).replace(/\\/g, '/')}` };
+                const fullPath = path.join(profile.folder_path, file_name);
+                if (fs.existsSync(fullPath)) {
+                    const ext = path.extname(fullPath).toLowerCase().replace('.', '');
+                    const mimeType = ext === 'mp3' ? 'audio/mpeg' : ext === 'ogg' ? 'audio/ogg' : 'audio/wav';
+                    const base64Data = fs.readFileSync(fullPath).toString('base64');
+                    soundData.data[kc] = {
+                        src: `data:${mimeType};base64,${base64Data}`,
+                        format: [ext]
+                    };
+                } else {
+                    soundData.data[kc] = {
+                        src: `file:///${fullPath.replace(/\\/g, '/')}`
+                    };
+                }
             }
         }
     }

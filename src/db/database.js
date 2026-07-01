@@ -269,6 +269,18 @@ function getProfileDetails(id) {
     const profile = stmt.getAsObject();
     stmt.free();
     
+    // Add Base64 content for custom single profile audio files to prevent file:// protocol/fetch loading issues
+    if (profile.sound_file && profile.folder_path) {
+        const fullPath = path.join(profile.folder_path, profile.sound_file);
+        if (fs.existsSync(fullPath)) {
+            const ext = path.extname(fullPath).toLowerCase().replace('.', '');
+            const mimeType = ext === 'mp3' ? 'audio/mpeg' : ext === 'ogg' ? 'audio/ogg' : 'audio/wav';
+            const base64Data = fs.readFileSync(fullPath).toString('base64');
+            profile.sound_base64 = `data:${mimeType};base64,${base64Data}`;
+            profile.sound_format = ext;
+        }
+    }
+    
     const soundsRes = db.exec(`SELECT keycode, file, start, length FROM sound_files WHERE profile_id = '${id.replace(/'/g, "''")}'`);
     
     let defines = {};

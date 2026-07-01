@@ -1355,7 +1355,8 @@ async function previewProfile(id) {
     const vol = parseInt(document.getElementById('global-volume').value) / 100;
     
     if (play_type === 'single') {
-        const srcPath = `file:///${details.folder_path.replace(/\\/g, '/')}/${details.sound_file}`;
+        const srcPath = details.sound_base64 || `file:///${details.folder_path.replace(/\\/g, '/')}/${details.sound_file}`;
+        const format = details.sound_format ? [details.sound_format] : undefined;
         const defines = details.defines || {}; 
         
         // Ensure sprite values are formatted as arrays [start, duration]
@@ -1370,6 +1371,7 @@ async function previewProfile(id) {
         if (testKey) {
             const previewHowl = new Howl({
                 src: [srcPath],
+                format: format,
                 sprite: formattedSprite,
                 volume: vol,
                 html5: false,
@@ -1378,20 +1380,26 @@ async function previewProfile(id) {
                     console.warn("Preview load error, retrying with html5: true", err);
                     const fallback = new Howl({
                         src: [srcPath],
+                        format: format,
                         sprite: formattedSprite,
                         volume: vol,
                         html5: true,
                         preload: true
                     });
                     fallback.once('load', () => fallback.play(testKey));
+                    fallback.once('end', () => fallback.unload());
+                    fallback.once('playerror', () => fallback.unload());
                 }
             });
             previewHowl.once('load', () => {
                 previewHowl.play(testKey);
             });
+            previewHowl.once('end', () => previewHowl.unload());
+            previewHowl.once('playerror', () => previewHowl.unload());
         } else {
             const previewHowl = new Howl({
                 src: [srcPath],
+                format: format,
                 volume: vol,
                 html5: false,
                 preload: true,
@@ -1399,16 +1407,21 @@ async function previewProfile(id) {
                     console.warn("Preview load error, retrying with html5: true", err);
                     const fallback = new Howl({
                         src: [srcPath],
+                        format: format,
                         volume: vol,
                         html5: true,
                         preload: true
                     });
                     fallback.once('load', () => fallback.play());
+                    fallback.once('end', () => fallback.unload());
+                    fallback.once('playerror', () => fallback.unload());
                 }
             });
             previewHowl.once('load', () => {
                 previewHowl.play();
             });
+            previewHowl.once('end', () => previewHowl.unload());
+            previewHowl.once('playerror', () => previewHowl.unload());
         }
     } else {
         // Multi
