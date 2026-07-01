@@ -209,7 +209,7 @@ function createWindow(show) {
     win.loadFile(path.join(__dirname, 'app.html'));
     
     // Uncomment to debug renderer
-    win.webContents.openDevTools({ mode: 'detach' });
+    // win.webContents.openDevTools({ mode: 'detach' });
 
     win.webContents.on('did-finish-load', () => {
         if (current_pack_data) {

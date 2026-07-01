@@ -274,6 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const vol = parseInt(document.getElementById('global-volume').value) / 100;
         
         if (soundData.type === 'single') {
+            const hasSprites = soundData.sprite && Object.keys(soundData.sprite).length > 0;
             const createHowlSingle = (useHtml5 = false) => {
                 const howlOptions = {
                     src: soundData.src,
@@ -281,10 +282,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     volume: vol,
                     html5: useHtml5,
                     preload: true,
+                    onload: function() {
+                        // Ensure __default sprite exists after loading for sprite-less custom profiles
+                        if (!this._sprite || !this._sprite.__default) {
+                            this._sprite = this._sprite || {};
+                            if (this._duration > 0) {
+                                this._sprite.__default = [0, this._duration * 1000];
+                            }
+                        }
+                        console.log("[Howl] Loaded single pack. Duration:", this._duration, "Sprites:", Object.keys(this._sprite));
+                    },
                     onloaderror: (id, err) => {
-                        console.error("Howler Load Error for Single Pack:", err, soundData.src);
+                        console.error("Howler Load Error for Single Pack:", err);
                         if (!useHtml5) {
-                            console.warn("Attempting fallback to html5: true for single pack due to load/decode error...");
+                            console.warn("Attempting fallback to html5: true...");
                             if (audio_instances['single']) {
                                 audio_instances['single'].unload();
                             }
@@ -295,12 +306,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         console.error("Howler Play Error for Single Pack:", err);
                     }
                 };
-                if (soundData.sprite && Object.keys(soundData.sprite).length > 0) {
+                if (hasSprites) {
                     howlOptions.sprite = soundData.sprite;
                 }
                 return new Howl(howlOptions);
             };
-            audio_instances['single'] = createHowlSingle(false);
+            // Use html5 mode for custom profiles without sprites (better WAV/format compatibility)
+            audio_instances['single'] = createHowlSingle(!hasSprites);
         } else {
             for (const kc in soundData.data) {
                 audio_instances[kc] = new Howl({
@@ -322,16 +334,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             const vol = parseInt(document.getElementById('global-volume').value) / 100;
             
             if (data.type === 'single') {
-                if (audio_instances['single']) {
-                    audio_instances['single'].volume(vol);
-                    const spriteExists = audio_instances['single']._sprite && 
-                                         Object.keys(audio_instances['single']._sprite).length > 0 && 
-                                         data.sound_id in audio_instances['single']._sprite;
-                    if (spriteExists) {
-                        audio_instances['single'].play(data.sound_id);
+                const howl = audio_instances['single'];
+                if (!howl) return;
+                
+                // Guard: don't attempt play if not loaded yet
+                if (howl._state !== 'loaded') return;
+                
+                // Guard: ensure __default sprite exists for custom profiles with no key mappings
+                if (!howl._sprite || !howl._sprite.__default) {
+                    if (howl._duration && howl._duration > 0) {
+                        howl._sprite = howl._sprite || {};
+                        howl._sprite.__default = [0, howl._duration * 1000];
                     } else {
-                        audio_instances['single'].play();
+                        return; // Duration unknown, can't play
                     }
+                }
+                
+                howl.volume(vol);
+                if (howl._sprite[data.sound_id]) {
+                    howl.play(data.sound_id);
+                } else {
+                    howl.play();
                 }
             } else {
                 const h = audio_instances[data.sound_id];
