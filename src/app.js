@@ -278,12 +278,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (soundData.type === 'single') {
             const hasSprites = soundData.sprite && Object.keys(soundData.sprite).length > 0;
-            const createHowlSingle = (useHtml5 = false) => {
+            const createHowlSingle = () => {
                 const howlOptions = {
                     src: soundData.src,
                     format: soundData.format,
                     volume: vol,
-                    html5: useHtml5,
+                    html5: false, // Always use Web Audio API for zero latency and overlap support
                     preload: true,
                     onload: function() {
                         // Ensure __default sprite exists after loading for sprite-less custom profiles
@@ -299,13 +299,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     },
                     onloaderror: (id, err) => {
                         console.error("Howler Load Error for Single Pack:", err);
-                        if (!useHtml5) {
-                            console.warn("Attempting fallback to html5: true...");
-                            if (audio_instances['single']) {
-                                audio_instances['single'].unload();
-                            }
-                            audio_instances['single'] = createHowlSingle(true);
-                        }
                     },
                     onplayerror: (id, err) => {
                         console.error("Howler Play Error for Single Pack:", err);
@@ -316,8 +309,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 return new Howl(howlOptions);
             };
-            // Use html5 mode for custom profiles without sprites (better WAV/format compatibility)
-            audio_instances['single'] = createHowlSingle(!hasSprites);
+            audio_instances['single'] = createHowlSingle();
         } else {
             for (const kc in soundData.data) {
                 audio_instances[kc] = new Howl({
