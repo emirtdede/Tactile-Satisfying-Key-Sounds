@@ -10,6 +10,7 @@ let win = null;
 let tray = null;
 let current_pack_data = null;
 let is_muted = false;
+const activeKeys = new Set();
 
 const SYSTRAY_ICON = path.join(__dirname, 'assets/system-tray-icon.png');
 
@@ -99,6 +100,11 @@ function setupHook() {
     }
     
     uIOhook.on('keydown', (event) => {
+        if (activeKeys.has(event.keycode)) {
+            return;
+        }
+        activeKeys.add(event.keycode);
+
         if(win && !win.isDestroyed()) {
             if (current_pack_data && !is_muted) {
                 const play_type = current_pack_data.key_define_type || 'single';
@@ -109,6 +115,8 @@ function setupHook() {
     });
 
     uIOhook.on('keyup', (event) => {
+        activeKeys.delete(event.keycode);
+
         if(win && !win.isDestroyed()) {
             // Some profiles map keyup
             if (current_pack_data && !is_muted) {
@@ -176,7 +184,10 @@ function setupTray() {
             click: () => {
                 is_muted = !is_muted;
                 db.setSetting('muted', is_muted ? 'true' : 'false');
-                if (is_muted) uIOhook.stop();
+                if (is_muted) {
+                    uIOhook.stop();
+                    activeKeys.clear();
+                }
                 else uIOhook.start();
             }
         },
@@ -220,7 +231,10 @@ ipcMain.handle('db-update-setting', (e, key, value) => {
     }
     if (key === 'muted') {
         is_muted = value === 'true';
-        if (is_muted) uIOhook.stop();
+        if (is_muted) {
+            uIOhook.stop();
+            activeKeys.clear();
+        }
         else uIOhook.start();
     }
 });
