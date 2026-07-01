@@ -53,6 +53,10 @@ const translations = {
         'settings.shortcut_record_placeholder': 'Kısayol Kaydetmek İçin Tıkla...',
         'settings.shortcut_recording': 'Tuşlara Basın... (Esc ile İptal)',
         'settings.shortcut_error': 'Kısayol Kaydedilemedi (Kullanımda olabilir)',
+        'settings.theme_title': 'Uygulama Teması',
+        'settings.theme_desc': 'Arayüzün görünüm temasını seçin.',
+        'settings.theme_dark': 'Karanlık',
+        'settings.theme_light': 'Açık',
 
         // ─── About View ───
         'about.subtitle': 'Günlük iş akışınız için tatmin edici mekanik klavye switch geri bildirimi.',
@@ -234,6 +238,10 @@ const translations = {
         'settings.shortcut_record_placeholder': 'Click to record shortcut...',
         'settings.shortcut_recording': 'Press keys... (Esc to Cancel)',
         'settings.shortcut_error': 'Shortcut Registration Failed (Might be in use)',
+        'settings.theme_title': 'Application Theme',
+        'settings.theme_desc': 'Choose the interface theme.',
+        'settings.theme_dark': 'Dark',
+        'settings.theme_light': 'Light',
         'about.subtitle': 'Satisfying mechanical keyboard switch feedback for your daily workflow.',
         'about.developer': 'DEVELOPER',
         'about.website': 'Web Site',

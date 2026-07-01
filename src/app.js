@@ -444,6 +444,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Theme Initial State & Synchronization
+    const currentTheme = settings.theme || 'dark';
+    if (currentTheme === 'light') {
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+    }
+    
+    const themeSelect = document.getElementById('setting-theme');
+    if (themeSelect) {
+        themeSelect.value = currentTheme;
+        themeSelect.addEventListener('change', async (e) => {
+            const nextTheme = e.target.value;
+            settings.theme = nextTheme;
+            await window.api.updateSetting('theme', nextTheme);
+            if (nextTheme === 'light') {
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+            }
+        });
+    }
+
     // Settings event listeners
     document.getElementById('global-volume').addEventListener('input', (e) => {
         window.api.updateSetting('volume', e.target.value);
