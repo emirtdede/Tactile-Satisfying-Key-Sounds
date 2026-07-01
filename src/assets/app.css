@@ -6,6 +6,8 @@
     --bg-titlebar: rgba(0, 0, 0, 0.2);
     --bg-card-type: rgba(255, 255, 255, 0.1);
     --btn-hover-bg: rgba(255, 255, 255, 0.1);
+    --bg-modal: #162432;
+    --bg-modal-header: rgba(0, 0, 0, 0.15);
     --accent-gold: #D4AF37;
     --accent-gold-hover: #E5C158;
     --text-primary: #FFFFFF;
@@ -27,6 +29,8 @@ body.light-theme {
     --bg-titlebar: rgba(0, 0, 0, 0.05);
     --bg-card-type: rgba(30, 41, 59, 0.06);
     --btn-hover-bg: rgba(30, 41, 59, 0.05);
+    --bg-modal: #FFFFFF;
+    --bg-modal-header: rgba(0, 0, 0, 0.03);
     --accent-gold: #B8860B;
     --accent-gold-hover: #996515;
     --text-primary: #1F2E3D;
@@ -922,7 +926,7 @@ input:checked + .slider:before {
 }
 
 .modal-card {
-    background: #162432;
+    background: var(--bg-modal);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     width: 580px;
@@ -945,7 +949,7 @@ input:checked + .slider:before {
     justify-content: space-between;
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-subtle);
-    background: rgba(0,0,0,0.1);
+    background: var(--bg-modal-header);
 }
 
 .modal-header-title {
@@ -999,7 +1003,7 @@ input:checked + .slider:before {
     justify-content: space-between;
     padding: 16px 20px;
     border-top: 1px solid var(--border-subtle);
-    background: rgba(0,0,0,0.1);
+    background: var(--bg-modal-header);
 }
 
 .modal-link {
