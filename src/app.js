@@ -279,7 +279,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sprite: soundData.sprite,
                 volume: vol,
                 html5: false, // Forces Web Audio API (highly responsive, low latency)
-                preload: true
+                preload: true,
+                onloaderror: (id, err) => {
+                    console.error("Howler Load Error for Single Pack:", err, soundData.src);
+                },
+                onplayerror: (id, err) => {
+                    console.error("Howler Play Error for Single Pack:", err);
+                }
             });
         } else {
             for (const kc in soundData.data) {
@@ -287,7 +293,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     src: [soundData.data[kc].src],
                     volume: vol,
                     html5: false, // Forces Web Audio API
-                    preload: true
+                    preload: true,
+                    onloaderror: (id, err) => {
+                        console.error("Howler Load Error for Key:", kc, err, soundData.data[kc].src);
+                    }
                 });
             }
         }
@@ -1355,6 +1364,16 @@ async function previewProfile(id) {
             });
             previewHowl.once('load', () => {
                 previewHowl.play(testKey);
+            });
+        } else {
+            const previewHowl = new Howl({
+                src: [srcPath],
+                volume: vol,
+                html5: false,
+                preload: true
+            });
+            previewHowl.once('load', () => {
+                previewHowl.play();
             });
         }
     } else {
