@@ -145,9 +145,32 @@ async function initDB() {
     }
 }
 
+let saveTimeout = null;
+
 function saveDB() {
-    const data = db.export();
-    fs.writeFileSync(dbPath, Buffer.from(data));
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        try {
+            const data = db.export();
+            fs.writeFileSync(dbPath, Buffer.from(data));
+        } catch (err) {
+            console.error("Failed to save DB:", err);
+        }
+        saveTimeout = null;
+    }, 500);
+}
+
+function forceSaveDB() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    try {
+        if (db) {
+            const data = db.export();
+            fs.writeFileSync(dbPath, Buffer.from(data));
+        }
+    } catch (err) {
+        console.error("Failed to force save DB:", err);
+    }
+    saveTimeout = null;
 }
 
 function getSetting(key) {
@@ -397,5 +420,6 @@ module.exports = {
     updateProfileDetails,
     getProfileDetails,
     insertProfile,
-    loadDefaultPacks
+    loadDefaultPacks,
+    forceSaveDB
 };

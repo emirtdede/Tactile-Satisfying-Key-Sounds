@@ -32,10 +32,22 @@ contextBridge.exposeInMainWorld('api', {
     createProfile: (name, type, material, description, soundPath) => ipcRenderer.invoke('create-profile', name, type, material, description, soundPath),
 
     // Playback and UI Events from Main
-    onLoadPackSounds: (callback) => ipcRenderer.on('load-pack-sounds', (e, data) => callback(data)),
-    onPlaySound: (callback) => ipcRenderer.on('play-sound', (e, data) => callback(data)),
-    onMuteStatusChanged: (callback) => ipcRenderer.on('mute-status-changed', (e, muted) => callback(muted)),
-    onVolumeChanged: (callback) => ipcRenderer.on('volume-changed', (e, vol) => callback(vol)),
+    onLoadPackSounds: (callback) => {
+        ipcRenderer.removeAllListeners('load-pack-sounds');
+        ipcRenderer.on('load-pack-sounds', (e, data) => callback(data));
+    },
+    onPlaySound: (callback) => {
+        ipcRenderer.removeAllListeners('play-sound');
+        ipcRenderer.on('play-sound', (e, data) => callback(data));
+    },
+    onMuteStatusChanged: (callback) => {
+        ipcRenderer.removeAllListeners('mute-status-changed');
+        ipcRenderer.on('mute-status-changed', (e, muted) => callback(muted));
+    },
+    onVolumeChanged: (callback) => {
+        ipcRenderer.removeAllListeners('volume-changed');
+        ipcRenderer.on('volume-changed', (e, vol) => callback(vol));
+    },
     
     // System Integration
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),

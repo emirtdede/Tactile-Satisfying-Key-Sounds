@@ -611,6 +611,7 @@ if (!gotTheLock) {
     app.on('ready', initializeApp);
 
     app.on('will-quit', () => {
+        db.forceSaveDB();
         globalShortcut.unregisterAll();
     });
 
