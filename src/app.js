@@ -1399,7 +1399,24 @@ function renderProfiles(type = current_view) {
 async function setActiveProfile(id) {
     active_profile_id = id;
     await window.api.setActiveProfile(id);
-    renderProfiles(current_view);
+    
+    // Update card states in-place without re-rendering (preserves scroll position)
+    document.querySelectorAll('.card[data-id]').forEach(card => {
+        const cardId = card.getAttribute('data-id');
+        const isActive = cardId === id;
+        
+        // Toggle active class on the card
+        card.classList.toggle('active', isActive);
+        
+        // Update the activate/active button
+        const actionBtns = card.querySelectorAll('.card-actions .btn');
+        const activateBtn = actionBtns[1]; // Second button is the activate button
+        if (activateBtn) {
+            activateBtn.classList.toggle('primary', isActive);
+            activateBtn.innerText = isActive ? t('btn.active') : t('btn.set_active');
+        }
+    });
+    
     updateActiveProfileBadge();
 }
 
