@@ -265,6 +265,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btn-max').addEventListener('click', () => window.api.maximize());
     document.getElementById('btn-close').addEventListener('click', () => window.api.close());
 
+    // Audio Playback Listeners (Must be registered early to receive initial soundpack load events)
+    window.api.onLoadPackSounds((soundData) => {
+        // Unload old
+        Object.values(audio_instances).forEach(h => h.unload());
+        audio_instances = {};
+        
+        const vol = parseInt(document.getElementById('global-volume').value) / 100;
+        
+        if (soundData.type === 'single') {
+            audio_instances['single'] = new Howl({
+                src: soundData.src,
+                sprite: soundData.sprite,
+                volume: vol,
+                html5: false, // Forces Web Audio API (highly responsive, low latency)
+                preload: true
+            });
+        } else {
+            for (const kc in soundData.data) {
+                audio_instances[kc] = new Howl({
+                    src: [soundData.data[kc].src],
+                    volume: vol,
+                    html5: false, // Forces Web Audio API
+                    preload: true
+                });
+            }
+        }
+    });
+
+    window.api.onPlaySound((data) => {
+        // We only use this for UI preview if needed, but the main process handles global hook playback.
+        // Wait, the main process sends 'play-sound' here so the RENDERER actually plays it!
+        // Yes, Howler lives in the renderer.
+        const vol = parseInt(document.getElementById('global-volume').value) / 100;
+        
+        if (data.type === 'single') {
+            if (audio_instances['single']) {
+                audio_instances['single'].volume(vol);
+                audio_instances['single'].play(data.sound_id);
+            }
+        } else {
+            const h = audio_instances[data.sound_id];
+            if (h) {
+                h.volume(vol);
+                h.play();
+            }
+        }
+    });
+
     // Load initial data
     settings = await window.api.getSettings();
     profiles = await window.api.getProfiles();
@@ -911,53 +959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault(); showLegalModal('terms');
     });
 
-    // Audio Playback Listener (from Main Process)
-    window.api.onLoadPackSounds((soundData) => {
-        // Unload old
-        Object.values(audio_instances).forEach(h => h.unload());
-        audio_instances = {};
-        
-        const vol = parseInt(document.getElementById('global-volume').value) / 100;
-        
-        if (soundData.type === 'single') {
-            audio_instances['single'] = new Howl({
-                src: soundData.src,
-                sprite: soundData.sprite,
-                volume: vol,
-                html5: false, // Forces Web Audio API (highly responsive, low latency)
-                preload: true
-            });
-        } else {
-            for (const kc in soundData.data) {
-                audio_instances[kc] = new Howl({
-                    src: [soundData.data[kc].src],
-                    volume: vol,
-                    html5: false, // Forces Web Audio API
-                    preload: true
-                });
-            }
-        }
-    });
 
-    window.api.onPlaySound((data) => {
-        // We only use this for UI preview if needed, but the main process handles global hook playback.
-        // Wait, the main process sends 'play-sound' here so the RENDERER actually plays it!
-        // Yes, Howler lives in the renderer.
-        const vol = parseInt(document.getElementById('global-volume').value) / 100;
-        
-        if (data.type === 'single') {
-            if (audio_instances['single']) {
-                audio_instances['single'].volume(vol);
-                audio_instances['single'].play(data.sound_id);
-            }
-        } else {
-            const h = audio_instances[data.sound_id];
-            if (h) {
-                h.volume(vol);
-                h.play();
-            }
-        }
-    });
 
     // Load initial categories
     await loadAndRenderCategories();
