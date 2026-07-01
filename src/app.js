@@ -357,7 +357,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else if (!data.sound_id.endsWith('-up')) {
                     // No sprite match AND it's a keydown event → play the whole file
                     // Skip keyup ("-up") events for custom profiles without keyup mappings
-                    howl.stop(); // Stop any previous playback to prevent overlapping
                     howl.play();
                 }
             } else {
