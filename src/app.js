@@ -553,9 +553,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const view = btn.getAttribute('data-view');
+            
+            // Clear search box when switching tabs
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = '';
+            
             switchView(view);
         });
     });
+
+    // Search input listener
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            renderProfiles(current_view);
+        });
+    }
 
     // Material Filter Chips
     document.querySelectorAll('.chip').forEach(chip => {
@@ -1159,8 +1172,23 @@ function renderProfiles(type = current_view) {
                         activeChipText === 'TÜMÜ' || 
                         activeChipText === t('filter.all').toUpperCase();
     
+    // Read search query
+    const searchInputEl = document.getElementById('search-input');
+    const query = searchInputEl ? searchInputEl.value.trim().toLowerCase() : '';
+    
     // Render profile card matching either is_custom or matching normalized string of type
     const filtered = profiles.filter(p => {
+        // Apply search query filter (searches in name, description, material, and switch type)
+        if (query) {
+            const nameMatch = (p.name || '').toLowerCase().includes(query);
+            const descMatch = (p.description || '').toLowerCase().includes(query);
+            const matMatch = (p.material || '').toLowerCase().includes(query);
+            const typeMatch = (p.type || '').toLowerCase().includes(query);
+            if (!nameMatch && !descMatch && !matMatch && !typeMatch) {
+                return false;
+            }
+        }
+
         // Apply material filter
         if (!isAllFilter) {
             const pMat = (p.material || '').toUpperCase();
