@@ -286,10 +286,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     preload: true,
                     onload: function() {
                         // Ensure __default sprite exists after loading for sprite-less custom profiles
-                        if (!this._sprite || !this._sprite.__default) {
-                            this._sprite = this._sprite || {};
-                            if (this._duration > 0) {
-                                this._sprite.__default = [0, this._duration * 1000];
+                        if (!hasSprites) {
+                            if (!this._sprite || !this._sprite.__default) {
+                                this._sprite = this._sprite || {};
+                                if (this._duration > 0) {
+                                    this._sprite.__default = [0, this._duration * 1000];
+                                }
                             }
                         }
                         console.log("[Howl] Loaded single pack. Duration:", this._duration, "Sprites:", Object.keys(this._sprite));
@@ -342,13 +344,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Guard: don't attempt play if not loaded yet
                 if (howl._state !== 'loaded') return;
                 
-                // Guard: ensure __default sprite exists for custom profiles with no key mappings
-                if (!howl._sprite || !howl._sprite.__default) {
-                    if (howl._duration && howl._duration > 0) {
-                        howl._sprite = howl._sprite || {};
-                        howl._sprite.__default = [0, howl._duration * 1000];
-                    } else {
-                        return; // Duration unknown, can't play
+                // Determine if this is a sprite-based profile
+                const hasSprites = howl._sprite && Object.keys(howl._sprite).filter(k => k !== '__default').length > 0;
+                
+                if (!hasSprites) {
+                    // Guard: ensure __default sprite exists for custom profiles with no key mappings
+                    if (!howl._sprite || !howl._sprite.__default) {
+                        if (howl._duration && howl._duration > 0) {
+                            howl._sprite = howl._sprite || {};
+                            howl._sprite.__default = [0, howl._duration * 1000];
+                        } else {
+                            return; // Duration unknown, can't play
+                        }
                     }
                 }
                 
@@ -356,7 +363,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (howl._sprite[data.sound_id]) {
                     // Has a specific sprite for this key — play it (normal sprite-based packs)
                     howl.play(data.sound_id);
-                } else if (!data.sound_id.endsWith('-up')) {
+                } else if (!hasSprites && !data.sound_id.endsWith('-up')) {
                     // No sprite match AND it's a keydown event → play the whole file
                     // Skip keyup ("-up") events for custom profiles without keyup mappings
                     howl.play();
