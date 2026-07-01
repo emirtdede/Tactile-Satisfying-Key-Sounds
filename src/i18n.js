@@ -57,6 +57,10 @@ const translations = {
         'settings.theme_desc': 'Arayüzün görünüm temasını seçin.',
         'settings.theme_dark': 'Karanlık',
         'settings.theme_light': 'Açık',
+        'settings.icon_title': 'Uygulama İkonu',
+        'settings.icon_desc': 'Masaüstü ve görev çubuğu ikonunun stilini seçin.',
+        'settings.icon_dark': 'Karanlık (Tactile-bg)',
+        'settings.icon_light': 'Açık (Tactile-light)',
 
         // ─── About View ───
         'about.subtitle': 'Günlük iş akışınız için tatmin edici mekanik klavye switch geri bildirimi.',
@@ -242,6 +246,10 @@ const translations = {
         'settings.theme_desc': 'Choose the interface theme.',
         'settings.theme_dark': 'Dark',
         'settings.theme_light': 'Light',
+        'settings.icon_title': 'Application Icon',
+        'settings.icon_desc': 'Choose the style for the desktop and taskbar icon.',
+        'settings.icon_dark': 'Dark (Tactile-bg)',
+        'settings.icon_light': 'Light (Tactile-light)',
         'about.subtitle': 'Satisfying mechanical keyboard switch feedback for your daily workflow.',
         'about.developer': 'DEVELOPER',
         'about.website': 'Web Site',

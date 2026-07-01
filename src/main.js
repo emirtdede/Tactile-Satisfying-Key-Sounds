@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db/database');
@@ -323,6 +323,8 @@ function setupTray() {
     tray.setContextMenu(contextMenu);
 }
 
+
+
 // IPC Handlers
 ipcMain.on('window-control', (e, action) => {
     if (!win) return;
@@ -343,6 +345,7 @@ ipcMain.handle('db-get-settings', () => {
         start_minimized: db.getSetting('start_minimized') || 'false',
         tray_icon: db.getSetting('tray_icon') || 'true',
         theme: db.getSetting('theme') || 'dark',
+        app_icon: db.getSetting('app_icon') || 'dark',
         selected_profile: db.getSetting('selected_profile') || 'default',
         muted: db.getSetting('muted') || 'false',
         tray_click_single: db.getSetting('tray_click_single') || 'open',
@@ -364,6 +367,20 @@ ipcMain.handle('db-update-setting', (e, key, value) => {
             activeKeys.clear();
         }
         else uIOhook.start();
+    }
+    if (key === 'app_icon') {
+        // App icon updates are handled dynamically via set-dynamic-app-icon IPC handler
+    }
+});
+
+ipcMain.handle('set-dynamic-app-icon', (e, pngDataUrl) => {
+    if (!win || win.isDestroyed()) return;
+    try {
+        const image = nativeImage.createFromDataURL(pngDataUrl);
+        win.setIcon(image);
+        console.log("Dynamically set app icon from data URL");
+    } catch (err) {
+        console.error("Failed to dynamically set app icon:", err);
     }
 });
 

@@ -479,6 +479,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    const applyAppIcon = async (iconType) => {
+        try {
+            const svgUrl = iconType === 'light' ? '../public/Tactile-light.svg' : '../public/Tactile-bg.svg';
+            const pngDataUrl = await rasterizeSvgToPng(svgUrl);
+            await window.api.setDynamicAppIcon(pngDataUrl);
+        } catch (err) {
+            console.error("Failed to apply app icon:", err);
+        }
+    };
+
+    const appIconSelect = document.getElementById('setting-app-icon');
+    if (appIconSelect) {
+        appIconSelect.value = settings.app_icon || 'dark';
+        appIconSelect.addEventListener('change', async (e) => {
+            const nextIcon = e.target.value;
+            settings.app_icon = nextIcon;
+            await window.api.updateSetting('app_icon', nextIcon);
+            await applyAppIcon(nextIcon);
+        });
+    }
+
+    // Apply app icon on startup
+    applyAppIcon(settings.app_icon || 'dark');
+
     // Settings event listeners
     document.getElementById('global-volume').addEventListener('input', (e) => {
         window.api.updateSetting('volume', e.target.value);
@@ -1571,4 +1595,21 @@ async function previewProfile(id) {
             if (active_preview_howl === previewHowl) active_preview_howl = null;
         });
     }
+}
+
+function rasterizeSvgToPng(svgUrl, size = 256) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, size, size);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = (e) => reject(new Error("Failed to load SVG for rasterization: " + svgUrl));
+        img.src = svgUrl;
+    });
 }

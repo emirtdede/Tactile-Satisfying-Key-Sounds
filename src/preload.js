@@ -40,5 +40,6 @@ contextBridge.exposeInMainWorld('api', {
     // System Integration
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
     registerShortcut: (shortcut) => ipcRenderer.invoke('register-shortcut', shortcut),
-    unregisterShortcut: () => ipcRenderer.invoke('unregister-shortcut')
+    unregisterShortcut: () => ipcRenderer.invoke('unregister-shortcut'),
+    setDynamicAppIcon: (pngDataUrl) => ipcRenderer.invoke('set-dynamic-app-icon', pngDataUrl)
 });
