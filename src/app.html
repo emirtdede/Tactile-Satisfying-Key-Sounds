@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <title>Tactile</title>
@@ -30,21 +30,21 @@
                     <img src="../public/Tactile.svg" alt="Tactile Logo" class="app-brand-logo">
                     <div class="app-brand-meta">
                         <div class="app-brand-name">Tactile</div>
-                        <div class="app-brand-subtitle">Satisfying Key Sounds</div>
+                        <div class="app-brand-subtitle" data-i18n="app.subtitle">Tatmin Edici Tuş Sesleri</div>
                     </div>
                 </div>
                 
                 <div class="nav-group">
                     <div class="nav-title-container" style="display: flex; justify-content: space-between; align-items: center; padding-right: 8px;">
-                        <div class="nav-title">Sound Profiles</div>
+                        <div class="nav-title" data-i18n="nav.sound_profiles">SES PROFİLLERİ</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <button class="btn-edit-categories" id="btn-edit-categories" title="Manage Categories" style="background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+                            <button class="btn-edit-categories" id="btn-edit-categories" data-i18n-title="modal.manage_title" title="Kategorileri Yönet" style="background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
                                 </svg>
                             </button>
-                            <button class="btn-add-category" id="btn-add-category" title="New Category" style="background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</button>
+                            <button class="btn-add-category" id="btn-add-category" data-i18n-title="modal.create_category_title" title="Yeni Kategori" style="background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</button>
                         </div>
                     </div>
                     <div id="dynamic-categories-list" style="display: flex; flex-direction: column; gap: 4px;">
@@ -56,8 +56,8 @@
                 <div class="spacer"></div>
                 
                 <div class="nav-group footer-nav">
-                    <button class="nav-item" data-view="settings">Settings</button>
-                    <button class="nav-item" data-view="about">About / Legal</button>
+                    <button class="nav-item" data-view="settings" data-i18n="nav.settings">Ayarlar</button>
+                    <button class="nav-item" data-view="about" data-i18n="nav.about">Hakkında / Yasal</button>
                 </div>
                 
                 <div class="sidebar-user">
@@ -68,7 +68,7 @@
                         </svg>
                     </div>
                     <div class="user-info">
-                        <div class="user-name">Local User</div>
+                        <div class="user-name" data-i18n="sidebar.local_user">Yerel Kullanıcı</div>
                         <div class="user-role">Windows</div>
                     </div>
                 </div>
@@ -80,12 +80,12 @@
                 <!-- Top Toolbar -->
                 <div class="toolbar">
                     <div class="search-box">
-                        <input type="text" id="search-input" placeholder="Search profiles...">
+                        <input type="text" id="search-input" data-i18n-placeholder="toolbar.search" placeholder="Profil ara...">
                     </div>
                     <div class="global-controls">
-                        <span class="active-profile-badge" id="active-profile-name">No Profile Active</span>
+                        <span class="active-profile-badge" id="active-profile-name" data-i18n="toolbar.no_profile">Aktif Profil Yok</span>
                         <div class="volume-control">
-                            <label>Volume</label>
+                            <label data-i18n="toolbar.volume">Ses</label>
                             <input type="range" id="global-volume" min="0" max="100" value="50">
                         </div>
                     </div>
@@ -98,12 +98,12 @@
                     <div id="view-profiles" class="view active">
                         <div class="profiles-header-actions">
                             <div class="filters">
-                                <button class="chip active">All</button>
+                                <button class="chip active" data-i18n="filter.all">Tümü</button>
                                 <button class="chip">PBT</button>
                                 <button class="chip">ABS</button>
                             </div>
                             <div class="action-buttons">
-                                <button class="btn primary" id="btn-create-profile-modal">+ New Sound (Profile)</button>
+                                <button class="btn primary" id="btn-create-profile-modal" data-i18n="btn.new_profile">+ Yeni Ses (Profil)</button>
                             </div>
                         </div>
                         
@@ -124,9 +124,9 @@
                                             <line x1="12" y1="3" x2="12" y2="15"></line>
                                         </svg>
                                     </div>
-                                    <h3>Drag & Drop Sound Folders</h3>
-                                    <p>Drop your sound pack folders here to import them as a new sound profile.</p>
-                                    <button class="btn primary" id="btn-select-folder">Select Sound Folder</button>
+                                    <h3 data-i18n="import.drag_title">Ses Klasörlerini Sürükle ve Bırak</h3>
+                                    <p data-i18n="import.drag_desc">Yeni bir ses profili olarak içe aktarmak için ses paketi klasörlerinizi buraya bırakın.</p>
+                                    <button class="btn primary" id="btn-select-folder" data-i18n="import.select_folder">Ses Klasörü Seç</button>
                                 </div>
                             </div>
                             
@@ -140,13 +140,13 @@
 
                     <!-- Settings View -->
                     <div id="view-settings" class="view">
-                        <h2>Settings</h2>
-                        <div class="section-divider">⚙ GENERAL</div>
+                        <h2 data-i18n="settings.title">Ayarlar</h2>
+                        <div class="section-divider" data-i18n="settings.general">⚙ GENEL</div>
                         
                         <div class="setting-item">
                             <div class="setting-info">
-                                <h3>Mute Sounds</h3>
-                                <p>Temporarily disable key sound feedback.</p>
+                                <h3 data-i18n="settings.mute_title">Sesleri Kapat</h3>
+                                <p data-i18n="settings.mute_desc">Tuş sesi geri bildirimini geçici olarak devre dışı bırak.</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" id="setting-mute">
@@ -156,8 +156,8 @@
                         
                         <div class="setting-item">
                             <div class="setting-info">
-                                <h3>Start with Windows</h3>
-                                <p>Tactile runs automatically in the background when the PC starts.</p>
+                                <h3 data-i18n="settings.startup_title">Windows ile Başlat</h3>
+                                <p data-i18n="settings.startup_desc">Bilgisayar açıldığında Tactile otomatik olarak arka planda çalışır.</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" id="setting-startup">
@@ -167,13 +167,24 @@
                         
                         <div class="setting-item">
                             <div class="setting-info">
-                                <h3>Minimize to Tray</h3>
-                                <p>Keep Tactile running in the system tray when closing the window.</p>
+                                <h3 data-i18n="settings.tray_title">Tepsi Simgesine Küçült</h3>
+                                <p data-i18n="settings.tray_desc">Pencere kapatıldığında Tactile sistem tepsisinde çalışmaya devam eder.</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" id="setting-tray">
                                 <span class="slider"></span>
                             </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3 data-i18n="settings.lang_title">Uygulama Dili</h3>
+                                <p data-i18n="settings.lang_desc">Uygulama arayüzünün dilini seçin.</p>
+                            </div>
+                            <select id="setting-lang" class="form-select" style="width: 120px; margin: 0;">
+                                <option value="tr">Türkçe</option>
+                                <option value="en">English</option>
+                            </select>
                         </div>
 
                     </div>
@@ -184,20 +195,20 @@
                             <img src="../public/Tactile.svg" alt="Tactile" class="about-app-logo">
                             <h2>Tactile</h2>
                             <p class="version" id="app-version-display">Version 1.0.0</p>
-                            <p class="about-subtitle">Satisfying mechanical keyboard switch feedback for your daily workflow.</p>
+                            <p class="about-subtitle" data-i18n="about.subtitle">Günlük iş akışınız için tatmin edici mekanik klavye switch geri bildirimi.</p>
                             
                             <div class="developer-card">
                                 <img src="../public/Vellium-logo.svg" alt="Vellium Logo" class="developer-logo">
                                 <div class="developer-info">
-                                    <span class="dev-label">DEVELOPER</span>
+                                    <span class="dev-label" data-i18n="about.developer">GELİŞTİRİCİ</span>
                                     <span class="dev-name">Vellium.dev</span>
                                     <a href="#" id="link-website" class="dev-link">vellium.dev</a>
                                 </div>
-                                <button class="btn dev-btn" id="btn-web-site">Web Site</button>
+                                <button class="btn dev-btn" id="btn-web-site" data-i18n="about.website">Web Sitesi</button>
                             </div>
                             
                             <div class="legal-section">
-                                <span class="legal-label">LEGAL</span>
+                                <span class="legal-label" data-i18n="about.legal">YASAL</span>
                                 <div class="legal-item" id="link-terms">
                                     <div class="legal-icon">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -209,8 +220,8 @@
                                         </svg>
                                     </div>
                                     <div class="legal-text">
-                                        <span class="legal-title">Terms of Use (EULA)</span>
-                                        <span class="legal-desc">End user license agreement</span>
+                                        <span class="legal-title" data-i18n="about.terms_title">Kullanım Koşulları (EULA)</span>
+                                        <span class="legal-desc" data-i18n="about.terms_desc">Son kullanıcı lisans sözleşmesi</span>
                                     </div>
                                     <span class="arrow-icon">❯</span>
                                 </div>
@@ -221,16 +232,16 @@
                                         </svg>
                                     </div>
                                     <div class="legal-text">
-                                        <span class="legal-title">Privacy Policy</span>
-                                        <span class="legal-desc">Data collection and privacy information</span>
+                                        <span class="legal-title" data-i18n="about.privacy_title">Gizlilik Politikası</span>
+                                        <span class="legal-desc" data-i18n="about.privacy_desc">Veri toplama ve gizlilik bilgileri</span>
                                     </div>
                                     <span class="arrow-icon">❯</span>
                                 </div>
                             </div>
                             
                             <div class="about-footer-text">
-                                Copyright © 2026 Vellium. All rights reserved.<br>
-                                Tactile is a registered product of Vellium. dev.
+                                <span data-i18n="about.copyright">Telif Hakkı © 2026 Vellium. Tüm hakları saklıdır.</span><br>
+                                <span data-i18n="about.registered">Tactile, Vellium.dev'in tescilli bir ürünüdür.</span>
                             </div>
                         </div>
                     </div>
@@ -251,22 +262,22 @@
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                     </span>
-                    <span>Create New Sound List (Profile)</span>
+                    <span data-i18n="modal.create_title">Yeni Ses Listesi (Profil) Oluştur</span>
                 </div>
                 <button class="modal-close-btn" id="modal-create-close-x">✕</button>
             </header>
             
             <div class="modal-content">
                 <div class="form-group">
-                    <label for="input-new-profile-name">Profile (List) Name</label>
-                    <input type="text" id="input-new-profile-name" class="form-input" placeholder="e.g. My custom mechanical switches">
+                    <label for="input-new-profile-name" data-i18n="modal.profile_name">Profil (Liste) Adı</label>
+                    <input type="text" id="input-new-profile-name" class="form-input" data-i18n-placeholder="modal.profile_name_placeholder" placeholder="ör. Özel mekanik switch'lerim">
                 </div>
                 <div class="form-group">
-                    <label for="input-new-profile-desc">Description</label>
-                    <input type="text" id="input-new-profile-desc" class="form-input" placeholder="e.g. Premium Linear switch sound profile.">
+                    <label for="input-new-profile-desc" data-i18n="modal.description">Açıklama</label>
+                    <input type="text" id="input-new-profile-desc" class="form-input" data-i18n-placeholder="modal.description_placeholder" placeholder="ör. Premium Linear switch ses profili.">
                 </div>
                 <div class="form-group">
-                    <label for="select-new-profile-type">Switch Type</label>
+                    <label for="select-new-profile-type" data-i18n="modal.switch_type">Switch Türü</label>
                     <select id="select-new-profile-type" class="form-select">
                         <option value="Linear">Linear</option>
                         <option value="Tactile">Tactile</option>
@@ -274,23 +285,23 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="select-new-profile-material">Material</label>
+                    <label for="select-new-profile-material" data-i18n="modal.material">Malzeme</label>
                     <select id="select-new-profile-material" class="form-select">
                         <option value="PBT">PBT</option>
                         <option value="ABS">ABS</option>
                         <option value="Mixed">Mixed</option>
-                        <option value="__NEW__">+ Add New Material...</option>
+                        <option value="__NEW__" data-i18n="modal.add_new_material">+ Yeni Malzeme Ekle...</option>
                     </select>
                 </div>
                 <div class="form-group material-new-input-wrap" id="wrap-new-profile-material-new" style="display: none; max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;">
-                    <label for="input-new-profile-material-new">New Material Name</label>
-                    <input type="text" id="input-new-profile-material-new" class="form-input" placeholder="e.g. Pom, Brass, Steel">
+                    <label for="input-new-profile-material-new" data-i18n="modal.new_material">Yeni Malzeme Adı</label>
+                    <input type="text" id="input-new-profile-material-new" class="form-input" data-i18n-placeholder="modal.new_material_placeholder" placeholder="ör. Pom, Pirinç, Çelik">
                 </div>
             </div>
             
             <footer class="modal-footer">
-                <span>Creates an empty custom pack.</span>
-                <button class="btn primary" id="modal-create-save-btn">Create List</button>
+                <span data-i18n="modal.creates_empty">Boş bir özel paket oluşturur.</span>
+                <button class="btn primary" id="modal-create-save-btn" data-i18n="modal.create_list">Liste Oluştur</button>
             </footer>
         </div>
     </div>
@@ -307,7 +318,7 @@
                             <circle cx="18" cy="16" r="3"></circle>
                         </svg>
                     </span>
-                    <span>Add Sound to List (Profile)</span>
+                    <span data-i18n="modal.add_sound_title">Listeye (Profile) Ses Ekle</span>
                 </div>
                 <button class="modal-close-btn" id="modal-add-close-x">✕</button>
             </header>
@@ -315,22 +326,22 @@
             <div class="modal-content">
                 <input type="hidden" id="input-add-sound-profile-id">
                 <div class="form-group">
-                    <label for="input-add-sound-title">Sound Title / Switch Name</label>
-                    <input type="text" id="input-add-sound-title" class="form-input" placeholder="e.g. Space press, Cherry Blue Click">
+                    <label for="input-add-sound-title" data-i18n="modal.sound_title">Ses Başlığı / Switch Adı</label>
+                    <input type="text" id="input-add-sound-title" class="form-input" data-i18n-placeholder="modal.sound_title_placeholder" placeholder="ör. Boşluk tuşu basma, Cherry Blue Click">
                 </div>
                 <div class="form-group">
-                    <label for="input-add-sound-desc">Description</label>
-                    <input type="text" id="input-add-sound-desc" class="form-input" placeholder="e.g. Deep sound signature press">
+                    <label for="input-add-sound-desc" data-i18n="modal.description">Açıklama</label>
+                    <input type="text" id="input-add-sound-desc" class="form-input" data-i18n-placeholder="modal.sound_desc_placeholder" placeholder="ör. Derin ses imzalı basma">
                 </div>
                 <div class="form-group">
-                    <label for="input-add-sound-keycode">Assign to Keycode (e.g. 57: Space, 28: Enter, 14: Backspace)</label>
-                    <input type="number" id="input-add-sound-keycode" class="form-input" placeholder="Enter keycode number" min="1" value="57">
+                    <label for="input-add-sound-keycode" data-i18n="modal.keycode_label">Tuş Koduna Ata (ör. 57: Boşluk, 28: Enter, 14: Geri Silme)</label>
+                    <input type="number" id="input-add-sound-keycode" class="form-input" data-i18n-placeholder="modal.keycode_placeholder" placeholder="Tuş kodu numarası girin" min="1" value="57">
                 </div>
             </div>
             
             <footer class="modal-footer">
-                <span>Select file to assign:</span>
-                <button class="btn primary" id="modal-add-select-btn">Choose Audio & Save</button>
+                <span data-i18n="modal.select_file">Atanacak dosyayı seçin:</span>
+                <button class="btn primary" id="modal-add-select-btn" data-i18n="modal.choose_audio">Ses Dosyası Seç ve Kaydet</button>
             </footer>
         </div>
     </div>
@@ -346,7 +357,7 @@
                             <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
                         </svg>
                     </span>
-                    <span>Edit Profile Details</span>
+                    <span data-i18n="modal.edit_title">Profil Detaylarını Düzenle</span>
                 </div>
                 <button class="modal-close-btn" id="modal-edit-close-x">✕</button>
             </header>
@@ -354,37 +365,37 @@
             <div class="modal-content">
                 <input type="hidden" id="input-edit-profile-id">
                 <div class="form-group">
-                    <label for="input-edit-profile-name">Profile Name</label>
+                    <label for="input-edit-profile-name" data-i18n="modal.edit_profile_name">Profil Adı</label>
                     <input type="text" id="input-edit-profile-name" class="form-input">
                 </div>
                 <div class="form-group">
-                    <label for="select-edit-profile-type">Category</label>
+                    <label for="select-edit-profile-type" data-i18n="modal.edit_category">Kategori</label>
                     <select id="select-edit-profile-type" class="form-select">
                         <!-- Loaded dynamically -->
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="select-edit-profile-material">Material</label>
+                    <label for="select-edit-profile-material" data-i18n="modal.material">Malzeme</label>
                     <select id="select-edit-profile-material" class="form-select">
                         <option value="PBT">PBT</option>
                         <option value="ABS">ABS</option>
                         <option value="Mixed">Mixed</option>
-                        <option value="__NEW__">+ Add New Material...</option>
+                        <option value="__NEW__" data-i18n="modal.add_new_material">+ Yeni Malzeme Ekle...</option>
                     </select>
                 </div>
                 <div class="form-group material-new-input-wrap" id="wrap-edit-profile-material-new" style="display: none; max-height: 0; overflow: hidden; opacity: 0; transition: all 0.3s ease;">
-                    <label for="input-edit-profile-material-new">New Material Name</label>
-                    <input type="text" id="input-edit-profile-material-new" class="form-input" placeholder="e.g. Pom, Brass, Steel">
+                    <label for="input-edit-profile-material-new" data-i18n="modal.new_material">Yeni Malzeme Adı</label>
+                    <input type="text" id="input-edit-profile-material-new" class="form-input" data-i18n-placeholder="modal.new_material_placeholder" placeholder="ör. Pom, Pirinç, Çelik">
                 </div>
                 <div class="form-group">
-                    <label for="input-edit-profile-desc">Description</label>
+                    <label for="input-edit-profile-desc" data-i18n="modal.description">Açıklama</label>
                     <input type="text" id="input-edit-profile-desc" class="form-input">
                 </div>
             </div>
             
             <footer class="modal-footer">
-                <button class="btn" id="modal-edit-delete-btn" style="background: rgba(232, 17, 35, 0.2); border-color: #E81123; color: white;">Delete Profile</button>
-                <button class="btn primary" id="modal-edit-save-btn">Save Changes</button>
+                <button class="btn" id="modal-edit-delete-btn" style="background: rgba(232, 17, 35, 0.2); border-color: #E81123; color: white;" data-i18n="modal.delete_profile">Profili Sil</button>
+                <button class="btn primary" id="modal-edit-save-btn" data-i18n="modal.save_changes">Değişiklikleri Kaydet</button>
             </footer>
         </div>
     </div>
@@ -399,21 +410,21 @@
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                         </svg>
                     </span>
-                    <span>Create New Category List</span>
+                    <span data-i18n="modal.create_category_title">Yeni Kategori Listesi Oluştur</span>
                 </div>
                 <button class="modal-close-btn" id="modal-category-close-x">✕</button>
             </header>
             
             <div class="modal-content">
                 <div class="form-group">
-                    <label for="input-new-category-name">Category Name</label>
-                    <input type="text" id="input-new-category-name" class="form-input" placeholder="e.g. Tactile Custom, Clicky Premium">
+                    <label for="input-new-category-name" data-i18n="modal.category_name">Kategori Adı</label>
+                    <input type="text" id="input-new-category-name" class="form-input" data-i18n-placeholder="modal.category_name_placeholder" placeholder="ör. Tactile Özel, Clicky Premium">
                 </div>
             </div>
             
             <footer class="modal-footer">
-                <span>Adds new category list to sidebar.</span>
-                <button class="btn primary" id="modal-category-save-btn">Create Category</button>
+                <span data-i18n="modal.category_footer">Kenar çubuğuna yeni kategori listesi ekler.</span>
+                <button class="btn primary" id="modal-category-save-btn" data-i18n="modal.create_category">Kategori Oluştur</button>
             </footer>
         </div>
     </div>
@@ -432,7 +443,7 @@
                             <polyline points="10 9 9 9 8 9"></polyline>
                         </svg>
                     </span>
-                    <span id="modal-title-text">Terms of Use (EULA)</span>
+                    <span id="modal-title-text">Kullanım Koşulları (EULA)</span>
                 </div>
                 <button class="modal-close-btn" id="modal-close-x">✕</button>
             </header>
@@ -443,7 +454,7 @@
             
             <footer class="modal-footer">
                 <a href="#" id="modal-external-link" class="modal-link">vellium.dev/terms</a>
-                <button class="btn primary" id="modal-ok-btn">Tamam</button>
+                <button class="btn primary" id="modal-ok-btn" data-i18n="modal.ok">Tamam</button>
             </footer>
         </div>
     </div>
@@ -455,14 +466,14 @@
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
             </svg>
-            Rename
+            <span data-i18n="context.rename">Yeniden Adlandır</span>
         </button>
         <button class="context-item" id="context-delete-cat" style="background: transparent; border: none; color: #E81123; text-align: left; padding: 8px 16px; font-size: 13px; width: 100%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 8px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E81123" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            Delete
+            <span data-i18n="context.delete">Sil</span>
         </button>
     </div>
 
@@ -477,21 +488,21 @@
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
                     </span>
-                    <span>Manage Categories</span>
+                    <span data-i18n="modal.manage_title">Kategorileri Yönet</span>
                 </div>
                 <button class="modal-close-btn" id="modal-manage-close-x">✕</button>
             </header>
             
             <div class="modal-content">
-                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">Drag and drop categories to reorder them in the sidebar.</p>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;" data-i18n="modal.manage_desc">Kenar çubuğunda sıralamak için kategorileri sürükleyip bırakın.</p>
                 <div id="manage-categories-list" style="display: flex; flex-direction: column; gap: 8px;">
                     <!-- Loaded dynamically -->
                 </div>
             </div>
             
             <footer class="modal-footer">
-                <span>Drag to sort list.</span>
-                <button class="btn primary" id="modal-manage-ok-btn">Done</button>
+                <span data-i18n="modal.drag_sort">Sıralamak için sürükleyin.</span>
+                <button class="btn primary" id="modal-manage-ok-btn" data-i18n="modal.done">Tamam</button>
             </footer>
         </div>
     </div>
@@ -508,7 +519,7 @@
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
                     </span>
-                    <span id="dialog-title-text">Notification</span>
+                    <span id="dialog-title-text" data-i18n="dialog.notification">Bildirim</span>
                 </div>
             </header>
             <div class="modal-content" style="padding: 20px;">
@@ -518,12 +529,13 @@
                 </div>
             </div>
             <footer class="modal-footer" style="justify-content: flex-end; gap: 12px;">
-                <button class="btn" id="dialog-cancel-btn" style="display: none;">Cancel</button>
-                <button class="btn primary" id="dialog-confirm-btn">OK</button>
+                <button class="btn" id="dialog-cancel-btn" style="display: none;" data-i18n="dialog.cancel">İptal</button>
+                <button class="btn primary" id="dialog-confirm-btn" data-i18n="dialog.ok">Tamam</button>
             </footer>
         </div>
     </div>
 
+    <script src="./i18n.js"></script>
     <script src="./assets/howler.min.js"></script>
     <script src="./app.js"></script>
 </body>

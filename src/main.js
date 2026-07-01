@@ -4,6 +4,7 @@ const fs = require('fs');
 const db = require('./db/database');
 const { uIOhook } = require('uiohook-napi');
 const { keycodesRemap } = require('./libs/keycodes');
+const { t } = require('./i18n');
 
 let win = null;
 let tray = null;
@@ -169,7 +170,7 @@ function setupTray() {
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Tactile', click: () => { win.show(); win.focus(); } },
         { 
-            label: 'Mute', 
+            label: t('tray.mute'), 
             type: 'checkbox', 
             checked: is_muted,
             click: () => {
@@ -179,7 +180,7 @@ function setupTray() {
                 else uIOhook.start();
             }
         },
-        { label: 'Quit', click: () => { app.isQuiting = true; app.quit(); } }
+        { label: t('tray.quit'), click: () => { app.isQuiting = true; app.quit(); } }
     ]);
 
     tray.setContextMenu(contextMenu);

@@ -111,7 +111,8 @@ async function initDB() {
             active_volume: 'true',
             tray_icon: 'true',
             theme: 'dark',
-            selected_profile: 'default'
+            selected_profile: 'default',
+            language: 'tr'
         };
         
         db.run('BEGIN TRANSACTION;');

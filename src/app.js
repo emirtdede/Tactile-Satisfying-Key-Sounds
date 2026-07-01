@@ -9,7 +9,7 @@ let categories = [];
 let materials = ['PBT', 'ABS', 'Mixed'];
 
 // Custom Dialog Promise wrappers
-function showCustomAlert(message, title = "Notification") {
+function showCustomAlert(message, title = t('dialog.notification')) {
     return new Promise((resolve) => {
         const overlay = document.getElementById('custom-dialog-overlay');
         document.getElementById('dialog-title-text').innerText = title;
@@ -18,7 +18,7 @@ function showCustomAlert(message, title = "Notification") {
         document.getElementById('dialog-cancel-btn').style.display = 'none';
         
         const confirmBtn = document.getElementById('dialog-confirm-btn');
-        confirmBtn.innerText = "OK";
+        confirmBtn.innerText = t('dialog.ok');
         
         const closeHandler = () => {
             overlay.classList.remove('active');
@@ -30,7 +30,7 @@ function showCustomAlert(message, title = "Notification") {
     });
 }
 
-function showCustomConfirm(message, title = "Confirm Action") {
+function showCustomConfirm(message, title = t('dialog.confirm_action')) {
     return new Promise((resolve) => {
         const overlay = document.getElementById('custom-dialog-overlay');
         document.getElementById('dialog-title-text').innerText = title;
@@ -40,8 +40,8 @@ function showCustomConfirm(message, title = "Confirm Action") {
         const cancelBtn = document.getElementById('dialog-cancel-btn');
         const confirmBtn = document.getElementById('dialog-confirm-btn');
         cancelBtn.style.display = 'inline-block';
-        cancelBtn.innerText = "Cancel";
-        confirmBtn.innerText = "Confirm";
+        cancelBtn.innerText = t('dialog.cancel');
+        confirmBtn.innerText = t('dialog.confirm');
         
         const onConfirm = () => {
             overlay.classList.remove('active');
@@ -63,7 +63,7 @@ function showCustomConfirm(message, title = "Confirm Action") {
     });
 }
 
-function showCustomPrompt(message, defaultValue = "", title = "Input Required") {
+function showCustomPrompt(message, defaultValue = "", title = t('dialog.input_required')) {
     return new Promise((resolve) => {
         const overlay = document.getElementById('custom-dialog-overlay');
         document.getElementById('dialog-title-text').innerText = title;
@@ -76,8 +76,8 @@ function showCustomPrompt(message, defaultValue = "", title = "Input Required") 
         const cancelBtn = document.getElementById('dialog-cancel-btn');
         const confirmBtn = document.getElementById('dialog-confirm-btn');
         cancelBtn.style.display = 'inline-block';
-        cancelBtn.innerText = "Cancel";
-        confirmBtn.innerText = "Save";
+        cancelBtn.innerText = t('dialog.cancel');
+        confirmBtn.innerText = t('dialog.save');
         
         const onConfirm = () => {
             const val = inputField.value;
@@ -119,7 +119,7 @@ function loadAndRenderMaterials(skipSelectSync = false) {
         }
     });
     
-    filtersContainer.innerHTML = '<button class="chip">All</button>';
+    filtersContainer.innerHTML = `<button class="chip">${t('filter.all')}</button>`;
     materials.forEach(mat => {
         const btn = document.createElement('button');
         btn.className = 'chip';
@@ -167,7 +167,7 @@ function loadAndRenderMaterials(skipSelectSync = false) {
         
         const addOpt = document.createElement('option');
         addOpt.value = '__NEW__';
-        addOpt.innerText = '+ Add New Material...';
+        addOpt.innerText = t('modal.add_new_material');
         select.appendChild(addOpt);
         
         if (currentVal && (materials.includes(currentVal) || currentVal === '__NEW__')) {
@@ -205,7 +205,7 @@ async function loadAndRenderCategories() {
             
             // Bind context actions
             document.getElementById('context-rename-cat').onclick = async () => {
-                const newName = await showCustomPrompt('Enter new category name:', cat.name, 'Rename Category');
+                const newName = await showCustomPrompt(t('msg.rename_category'), cat.name, t('msg.rename_category_title'));
                 if (newName && newName !== cat.name) {
                     await window.api.renameCategory(cat.id, newName);
                     await loadAndRenderCategories();
@@ -216,7 +216,7 @@ async function loadAndRenderCategories() {
             };
             
             document.getElementById('context-delete-cat').onclick = async () => {
-                const confirmed = await showCustomConfirm(`Are you sure you want to delete category "${cat.name}"? This will also delete all sound profiles under this category.`, 'Delete Category');
+                const confirmed = await showCustomConfirm(tf('msg.confirm_delete_category', cat.name), t('msg.delete_category_title'));
                 if (confirmed) {
                     await window.api.deleteCategory(cat.id);
                     if (current_view === cat.id) {
@@ -270,6 +270,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     profiles = await window.api.getProfiles();
     active_profile_id = settings.selected_profile;
 
+    // Apply saved language before applying dynamic translations
+    const savedLang = settings.language || 'tr';
+    setLang(savedLang);
+    applyTranslations();
+
     document.getElementById('app-version-display').innerText = `Version ${await window.api.getAppVersion()}`;
 
     // Apply Settings
@@ -277,6 +282,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('setting-tray').checked = settings.tray_icon === 'true';
     document.getElementById('setting-startup').checked = settings.start_minimized === 'true'; // Map to start minimized / startup behavior
     document.getElementById('setting-mute').checked = settings.muted === 'true';
+    
+    const langSelect = document.getElementById('setting-lang');
+    if (langSelect) {
+        langSelect.value = savedLang;
+        langSelect.addEventListener('change', async (e) => {
+            const nextLang = e.target.value;
+            setLang(nextLang);
+            await window.api.updateSetting('language', nextLang);
+            applyTranslations();
+            
+            // Re-render categories and profiles to update all textual filters and navigation
+            await loadAndRenderCategories();
+            loadAndRenderMaterials();
+            renderProfiles(current_view);
+            updateActiveProfileBadge();
+        });
+    }
 
     // Settings event listeners
     document.getElementById('global-volume').addEventListener('input', (e) => {
@@ -386,12 +408,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const folderPath = files[0].path; // Electron file path
                 const res = await window.api.importFolderPack(folderPath);
                 if (res.success) {
-                    await showCustomAlert(`Successfully imported sound profile: ${res.profile.name}`);
+                    await showCustomAlert(`${t('msg.import_success')} ${res.profile.name}`);
                     profiles = await window.api.getProfiles(); // Reload local list
                     if (selectAppendProfile) populateAppendProfiles();
                     renderProfiles(current_view);
                 } else {
-                    await showCustomAlert(`Import failed: ${res.error}`);
+                    await showCustomAlert(`${t('msg.import_failed')} ${res.error}`);
                 }
             }
         });
@@ -405,12 +427,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (folderPath) {
                 const res = await window.api.importFolderPack(folderPath);
                 if (res.success) {
-                    await showCustomAlert(`Successfully imported sound profile: ${res.profile.name}`);
+                    await showCustomAlert(`${t('msg.import_success')} ${res.profile.name}`);
                     profiles = await window.api.getProfiles();
                     if (selectAppendProfile) populateAppendProfiles();
                     renderProfiles(current_view);
                 } else {
-                    await showCustomAlert(`Import failed: ${res.error}`);
+                    await showCustomAlert(`${t('msg.import_failed')} ${res.error}`);
                 }
             }
         });
@@ -440,7 +462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const targetId = selectAppendProfile ? selectAppendProfile.value : null;
             const keycode = keycodeInput ? keycodeInput.value : null;
             if (!targetId || !keycode) {
-                await showCustomAlert('Please select a profile and specify a keycode!');
+                await showCustomAlert(t('msg.select_profile_keycode'));
                 return;
             }
 
@@ -448,11 +470,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (filePath) {
                 const res = await window.api.importMixedZipPack(targetId, keycode, filePath);
                 if (res.success) {
-                    await showCustomAlert('Audio file assigned to key successfully.');
+                    await showCustomAlert(t('msg.audio_assigned'));
                     profiles = await window.api.getProfiles();
                     renderProfiles(current_view);
                 } else {
-                    await showCustomAlert(`Assignment failed: ${res.error}`);
+                    await showCustomAlert(`${t('msg.assign_failed')} ${res.error}`);
                 }
             }
         });
@@ -470,7 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('modal-category-save-btn').addEventListener('click', async () => {
         const name = document.getElementById('input-new-category-name').value;
         if (!name) {
-            await showCustomAlert('Please enter a category name!');
+            await showCustomAlert(t('msg.enter_category_name'));
             return;
         }
         await window.api.createCategory(name);
@@ -539,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Bind click handlers inside Manage dialog
             item.querySelector('.btn-rename-cat').addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const newName = await showCustomPrompt('Enter new category name:', cat.name, 'Rename Category');
+                const newName = await showCustomPrompt(t('msg.rename_category'), cat.name, t('msg.rename_category_title'));
                 if (newName && newName !== cat.name) {
                     await window.api.renameCategory(cat.id, newName);
                     await loadAndRenderCategories();
@@ -551,7 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             item.querySelector('.btn-delete-cat').addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const confirmed = await showCustomConfirm(`Are you sure you want to delete category "${cat.name}"? This will also delete all sound profiles under this category.`, 'Delete Category');
+                const confirmed = await showCustomConfirm(tf('msg.confirm_delete_category', cat.name), t('msg.delete_category_title'));
                 if (confirmed) {
                     await window.api.deleteCategory(cat.id);
                     if (current_view === cat.id) {
@@ -623,7 +645,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('[CREATE] name:', name, 'type:', type, 'material:', material, 'desc:', desc);
 
             if (!name) {
-                await showCustomAlert('Please enter a list (profile) name!');
+                await showCustomAlert(t('msg.enter_profile_name'));
                 return;
             }
 
@@ -632,7 +654,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const customVal = customInput ? customInput.value.trim() : '';
                 console.log('[CREATE] custom material:', customVal);
                 if (!customVal) {
-                    await showCustomAlert('Please enter a custom material name!');
+                    await showCustomAlert(t('msg.enter_material_name'));
                     return;
                 }
                 material = customVal;
@@ -651,7 +673,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('[CREATE] result:', res);
             
             if (res.success) {
-                await showCustomAlert(`List (profile) created successfully: ${name}`);
+                await showCustomAlert(`${t('msg.profile_created')} ${name}`);
                 
                 // Clean custom material input fields and reset state
                 const targetWrap = document.getElementById('wrap-new-profile-material-new');
@@ -675,11 +697,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 populateAppendProfiles();
                 renderProfiles(current_view);
             } else {
-                await showCustomAlert(`Failed to create list: ${res.error}`);
+                await showCustomAlert(`${t('msg.profile_create_failed')} ${res.error}`);
             }
         } catch (err) {
             console.error('[CREATE] Error:', err);
-            await showCustomAlert('An error occurred: ' + err.message);
+            await showCustomAlert(t('msg.error_occurred') + err.message);
         }
     });
 
@@ -701,7 +723,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const profileId = targetProfileIdInput.value;
         const keycode = targetKeycodeInput.value;
         if (!profileId || !keycode) {
-            showCustomAlert('Specify a profile and keycode!');
+            showCustomAlert(t('msg.select_profile_keycode'));
             return;
         }
 
@@ -709,11 +731,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (filePath) {
             const res = await window.api.importMixedZipPack(profileId, keycode, filePath);
             if (res.success) {
-                showCustomAlert('Audio file successfully added to this list (profile)!');
+                showCustomAlert(t('msg.audio_assigned'));
                 addSoundModal.classList.remove('active');
                 profiles = await window.api.getProfiles(); // Refresh details
             } else {
-                showCustomAlert(`Error assigning file: ${res.error}`);
+                showCustomAlert(`${t('msg.assign_failed')} ${res.error}`);
             }
         }
     });
@@ -749,7 +771,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const desc = editProfileDescInput.value;
 
         if (!name) {
-            await showCustomAlert('Profile name cannot be empty!');
+            await showCustomAlert(t('msg.profile_name_empty'));
             return;
         }
 
@@ -791,7 +813,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('modal-edit-delete-btn').addEventListener('click', async () => {
         const id = editProfileIdInput.value;
         const name = editProfileNameInput.value;
-        const confirmed = await showCustomConfirm(`Are you sure you want to delete profile "${name}"?`);
+        const confirmed = await showCustomConfirm(tf('msg.confirm_delete_profile', name));
         if (confirmed) {
             await window.api.deleteProfile(id);
             editProfileModal.classList.remove('active');
@@ -814,47 +836,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     const showLegalModal = (type) => {
         if (type === 'terms') {
-            modalTitle.innerText = 'Son Kullanıcı Lisans Sözleşmesi (EULA)';
+            modalTitle.innerText = t('legal.terms_title');
             modalLink.innerText = 'vellium.dev/eula';
             modalLink.onclick = (e) => { e.preventDefault(); window.api.openExternal('https://vellium.dev/eula'); };
-            modalBody.innerHTML = `
-                <h4>TACTILE — SON KULLANICI LİSANS SÖZLEŞMESİ</h4>
-                <p>Bu Sözleşme, Vellium ("Lisans Veren") tarafından geliştirilen Tactile yazılımını ("Yazılım") kullanmanıza ilişkin yasal bir sözleşmedir. Yazılımı kurarak veya kullanarak bu sözleşmenin tüm koşullarını kabul etmiş sayılırsınız.</p>
-                
-                <h4>1. Lisans Kapsamı</h4>
-                <p>Vellium size, bu Sözleşme koşulları dahilinde, kişisel ve ticari olmayan amaçlarla Yazılımı kullanmak için devredilemez, münhasır olmayan ve alt lisanslanamaz bir lisans tanımaktadır.</p>
-                
-                <h4>2. Kısıtlamalar</h4>
-                <p>Aşağıdaki eylemler kesinlikle yasaktır:</p>
-                <ul>
-                    <li>Yazılımı kopyalamak, değiştirmek veya dağıtmak</li>
-                    <li>Yazılımı tersine mühendislik (reverse engineering), kaynak koda çevirme (decompile) veya parçalara ayırma (disassemble) yoluyla analiz etmek</li>
-                    <li>Yazılımı kiralamak, ödünç vermek veya ticari amaçlarla alt lisanslamak</li>
-                </ul>
-                
-                <h4>3. Fikri Mülkiyet ve Mülkiyet Beyanı</h4>
-                <p>Yazılım ve içerdiği tüm içerik, özellikler ve işlevsellik, Vellium'un münhasır mülkiyetindedir. Bu sözleşme Apple Inc. veya Microsoft Corporation ile değil, yalnızca Lisans Veren (Vellium) ile kullanıcı arasındadır. Apple ve Microsoft'un bu Yazılım ile ilgili hiçbir destek, bakım veya sorumluluk yükümlülüğü bulunmamaktadır.</p>
-
-                <h4>4. Garanti Muafiyeti ve Sorumluluk Sınırı</h4>
-                <p>Yazılım "OLDUĞU GİBİ" (AS IS) sunulmaktadır. Lisans Veren, yazılımın hatasız veya kesintisiz çalışacağını garanti etmez. Uygulama sistem düzeyinde klavye hook mekanizması (uIOhook) kullanmaktadır. Donanım uyumluluğu, sistem güncellemeleri veya üçüncü taraf çakışmalarından kaynaklanabilecek sistem kararsızlıkları, veri kayıpları veya dolaylı zararlardan Lisans Veren hiçbir şekilde sorumlu tutulamaz.</p>
-
-                <h4>5. İletişim ve Destek</h4>
-                <p>Sözleşme veya Yazılım ile ilgili tüm soru, şikayet veya teknik destek taleplerinizi doğrudan <strong>support@vellium.dev</strong> adresine iletebilirsiniz.</p>
-            `;
+            modalBody.innerHTML = t('legal.terms_body');
         } else {
-            modalTitle.innerText = 'Gizlilik Politikası';
+            modalTitle.innerText = t('legal.privacy_title');
             modalLink.innerText = 'vellium.dev/privacy';
             modalLink.onclick = (e) => { e.preventDefault(); window.api.openExternal('https://vellium.dev/privacy'); };
-            modalBody.innerHTML = `
-                <h4>GİZLİLİK POLİTİKASI</h4>
-                <p>Vellium olarak gizliliğinize büyük önem veriyoruz. Tactile uygulamasını kullanırken kişisel verilerinizin nasıl işlendiği ve korunduğu hakkında bilgilendirme aşağıda yer almaktadır.</p>
-                
-                <h4>1. Toplanan Veriler</h4>
-                <p>Tactile, tamamen yerel (local) çalışan bir yazılımdır. Klavyenizden girdiğiniz hiçbir tuş verisi, metin, şifre veya hassas bilgi kesinlikle kaydedilmez, işlenmez ve internet üzerinden dış sunuculara gönderilmez. Sadece yerel olarak seçtiğiniz ses profilleri ve ayarlarınız bilgisayarınızdaki yerel veritabanında saklanır.</p>
-                
-                <h4>2. Veri Güvenliği ve İletişim</h4>
-                <p>Yerel verilerinizin güvenliği tamamen bilgisayarınızın işletim sistemi sınırları içerisinde korunmaktadır. Yazılımımız üzerinden dışarıya herhangi bir veri aktarımı gerçekleşmemektedir. Gizlilik sorularınız için bizimle <strong>support@vellium.dev</strong> üzerinden iletişime geçebilirsiniz.</p>
-            `;
+            modalBody.innerHTML = t('legal.privacy_body');
         }
         legalModal.classList.add('active');
     };
@@ -978,14 +968,19 @@ function renderProfiles(type = current_view) {
     
     // Get currently active material filter chip
     const activeChip = document.querySelector('.chip.active');
-    const materialFilter = activeChip ? activeChip.innerText.trim().toUpperCase() : 'ALL';
+    const activeChipText = activeChip ? activeChip.innerText.trim().toUpperCase() : 'ALL';
+    
+    // Support comparing against translated variants of 'All' / 'Tümü'
+    const isAllFilter = activeChipText === 'ALL' || 
+                        activeChipText === 'TÜMÜ' || 
+                        activeChipText === t('filter.all').toUpperCase();
     
     // Render profile card matching either is_custom or matching normalized string of type
     const filtered = profiles.filter(p => {
         // Apply material filter
-        if (materialFilter !== 'ALL') {
+        if (!isAllFilter) {
             const pMat = (p.material || '').toUpperCase();
-            if (pMat !== materialFilter) return false;
+            if (pMat !== activeChipText) return false;
         }
 
         if (isCustomView) return p.is_custom;
@@ -1044,11 +1039,11 @@ function renderProfiles(type = current_view) {
                     </button>
                 </div>
             </div>
-            <div class="card-desc">${p.description || 'Premium switch profile'}</div>
+            <div class="card-desc">${p.description || t('card.default_desc')}</div>
             <div class="card-actions">
-                <button class="btn" onclick="previewProfile('${p.id}')">Preview</button>
+                <button class="btn" onclick="previewProfile('${p.id}')">${t('btn.preview')}</button>
                 <button class="btn ${isActive ? 'primary' : ''}" onclick="setActiveProfile('${p.id}')">
-                    ${isActive ? 'Active' : 'Set Active'}
+                    ${isActive ? t('btn.active') : t('btn.set_active')}
                 </button>
             </div>
         `;
@@ -1056,7 +1051,7 @@ function renderProfiles(type = current_view) {
     });
 
     if (filtered.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-secondary); grid-column: 1/-1;">No profiles found in this category.</p>`;
+        container.innerHTML = `<p style="color:var(--text-secondary); grid-column: 1/-1;">${t('profiles.empty')}</p>`;
     }
 }
 
@@ -1069,7 +1064,7 @@ async function setActiveProfile(id) {
 
 function updateActiveProfileBadge() {
     const active = profiles.find(p => p.id === active_profile_id);
-    document.getElementById('active-profile-name').innerText = active ? active.name : 'No Profile Active';
+    document.getElementById('active-profile-name').innerText = active ? active.name : t('toolbar.no_profile');
 }
 
 async function previewProfile(id) {
