@@ -322,7 +322,10 @@ ipcMain.handle('db-get-settings', () => {
         tray_icon: db.getSetting('tray_icon') || 'true',
         theme: db.getSetting('theme') || 'dark',
         selected_profile: db.getSetting('selected_profile') || 'default',
-        muted: db.getSetting('muted') || 'false'
+        muted: db.getSetting('muted') || 'false',
+        tray_click_single: db.getSetting('tray_click_single') || 'open',
+        tray_click_double: db.getSetting('tray_click_double') || 'none',
+        shortcut_toggle_mute: db.getSetting('shortcut_toggle_mute') || 'Control+K'
     };
 });
 
