@@ -1013,3 +1013,17 @@ input:checked + .slider:before {
         padding: 12px 16px;
     }
 }
+
+/* Shortcut Recorder Button Styling */
+#btn-record-shortcut.recording {
+    background: rgba(212, 175, 55, 0.15) !important;
+    border-color: var(--accent-gold) !important;
+    color: var(--accent-gold) !important;
+    animation: pulse-border-gold 1.5s infinite;
+}
+
+@keyframes pulse-border-gold {
+    0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}

@@ -417,6 +417,117 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateMuteUI(muted);
     });
 
+    // Apply initial values for new settings
+    const traySingleSelect = document.getElementById('setting-tray-single');
+    const trayDoubleSelect = document.getElementById('setting-tray-double');
+    const btnRecordShortcut = document.getElementById('btn-record-shortcut');
+    const btnClearShortcut = document.getElementById('btn-clear-shortcut');
+
+    if (traySingleSelect) traySingleSelect.value = settings.tray_click_single || 'open';
+    if (trayDoubleSelect) trayDoubleSelect.value = settings.tray_click_double || 'none';
+    
+    const updateShortcutButtonLabel = () => {
+        const currentShortcut = settings.shortcut_toggle_mute || '';
+        if (currentShortcut) {
+            btnRecordShortcut.innerText = currentShortcut;
+        } else {
+            btnRecordShortcut.innerText = t('settings.shortcut_record_placeholder');
+        }
+    };
+    updateShortcutButtonLabel();
+
+    // Dropdowns change events
+    if (traySingleSelect) {
+        traySingleSelect.addEventListener('change', async (e) => {
+            settings.tray_click_single = e.target.value;
+            await window.api.updateSetting('tray_click_single', settings.tray_click_single);
+        });
+    }
+    if (trayDoubleSelect) {
+        trayDoubleSelect.addEventListener('change', async (e) => {
+            settings.tray_click_double = e.target.value;
+            await window.api.updateSetting('tray_click_double', settings.tray_click_double);
+        });
+    }
+
+    // Shortcut recording logic
+    let isRecordingShortcut = false;
+    
+    const handleShortcutKeyDown = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const key = event.key;
+
+        // Escape cancels recording
+        if (key === 'Escape') {
+            stopRecording();
+            return;
+        }
+
+        // If user presses only modifiers, wait for a normal key
+        if (['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
+            return;
+        }
+
+        // Build the shortcut string in Electron format
+        const parts = [];
+        if (event.ctrlKey) parts.push('Control');
+        if (event.altKey) parts.push('Alt');
+        if (event.shiftKey) parts.push('Shift');
+        if (event.metaKey) parts.push('Meta');
+
+        // Map javascript key names to Electron globalShortcut key strings
+        let electronKey = key.toUpperCase();
+        if (key === ' ') electronKey = 'Space';
+        if (key.startsWith('Arrow')) electronKey = key.substring(5); // ArrowUp -> Up, ArrowDown -> Down
+        
+        parts.push(electronKey);
+        
+        const shortcutString = parts.join('+');
+        
+        stopRecording();
+        
+        // Register the new shortcut via Main Process
+        const res = await window.api.registerShortcut(shortcutString);
+        if (res.success) {
+            settings.shortcut_toggle_mute = shortcutString;
+            updateShortcutButtonLabel();
+        } else {
+            showCustomAlert(t('settings.shortcut_error'));
+            updateShortcutButtonLabel();
+        }
+    };
+
+    function startRecording() {
+        isRecordingShortcut = true;
+        btnRecordShortcut.innerText = t('settings.shortcut_recording');
+        btnRecordShortcut.classList.add('recording');
+        window.addEventListener('keydown', handleShortcutKeyDown, true);
+    }
+
+    function stopRecording() {
+        isRecordingShortcut = false;
+        btnRecordShortcut.classList.remove('recording');
+        window.removeEventListener('keydown', handleShortcutKeyDown, true);
+    }
+
+    btnRecordShortcut.addEventListener('click', () => {
+        if (isRecordingShortcut) {
+            stopRecording();
+            updateShortcutButtonLabel();
+        } else {
+            startRecording();
+        }
+    });
+
+    btnClearShortcut.addEventListener('click', async () => {
+        stopRecording();
+        await window.api.unregisterShortcut();
+        settings.shortcut_toggle_mute = '';
+        updateShortcutButtonLabel();
+    });
+
     // Navigation
     document.querySelectorAll('.nav-item').forEach(btn => {
         btn.addEventListener('click', (e) => {

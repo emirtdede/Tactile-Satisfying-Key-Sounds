@@ -37,5 +37,7 @@ contextBridge.exposeInMainWorld('api', {
     onMuteStatusChanged: (callback) => ipcRenderer.on('mute-status-changed', (e, muted) => callback(muted)),
     
     // System Integration
-    getAppVersion: () => ipcRenderer.invoke('get-app-version')
+    getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+    registerShortcut: (shortcut) => ipcRenderer.invoke('register-shortcut', shortcut),
+    unregisterShortcut: () => ipcRenderer.invoke('unregister-shortcut')
 });

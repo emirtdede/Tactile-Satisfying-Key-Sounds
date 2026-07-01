@@ -112,7 +112,10 @@ async function initDB() {
             tray_icon: 'true',
             theme: 'dark',
             selected_profile: 'default',
-            language: 'tr'
+            language: 'tr',
+            tray_click_single: 'open',
+            tray_click_double: 'none',
+            shortcut_toggle_mute: 'Control+K'
         };
         
         db.run('BEGIN TRANSACTION;');
@@ -123,6 +126,22 @@ async function initDB() {
         stmt.free();
         db.run('COMMIT;');
         saveDB();
+    } else {
+        // Upgrade check: ensure new settings exist for existing databases
+        const newDefaults = {
+            tray_click_single: 'open',
+            tray_click_double: 'none',
+            shortcut_toggle_mute: 'Control+K'
+        };
+        let changed = false;
+        for (const [k, v] of Object.entries(newDefaults)) {
+            const check = db.exec(`SELECT COUNT(*) as count FROM app_settings WHERE key = '${k}'`);
+            if (check.length === 0 || check[0].values[0][0] === 0) {
+                db.run('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', [k, v]);
+                changed = true;
+            }
+        }
+        if (changed) saveDB();
     }
 }
 

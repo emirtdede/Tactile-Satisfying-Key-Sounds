@@ -192,6 +192,44 @@
                             </select>
                         </div>
 
+                        <!-- Single click action -->
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3 data-i18n="settings.tray_click_single_title">Tepsi Simgesi Tek Tıklama</h3>
+                                <p data-i18n="settings.tray_click_single_desc">Sistem tepsisindeki uygulama simgesine tek tıklandığında ne yapılsın?</p>
+                            </div>
+                            <select id="setting-tray-single" class="form-select" style="width: 150px; margin: 0;">
+                                <option value="open" data-i18n="settings.tray_action_open">Uygulamayı Aç</option>
+                                <option value="mute" data-i18n="settings.tray_action_mute">Sesi Kapat / Aç</option>
+                                <option value="none" data-i18n="settings.tray_action_none">Hiçbir Şey</option>
+                            </select>
+                        </div>
+
+                        <!-- Double click action -->
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3 data-i18n="settings.tray_click_double_title">Tepsi Simgesi Çift Tıklama</h3>
+                                <p data-i18n="settings.tray_click_double_desc">Sistem tepsisindeki uygulama simgesine çift tıklandığında ne yapılsın?</p>
+                            </div>
+                            <select id="setting-tray-double" class="form-select" style="width: 150px; margin: 0;">
+                                <option value="open" data-i18n="settings.tray_action_open">Uygulamayı Aç</option>
+                                <option value="mute" data-i18n="settings.tray_action_mute">Sesi Kapat / Aç</option>
+                                <option value="none" data-i18n="settings.tray_action_none">Hiçbir Şey</option>
+                            </select>
+                        </div>
+
+                        <!-- Shortcut Recorder -->
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3 data-i18n="settings.shortcut_title">Sesi Aç/Kapat Kısayol Tuşu</h3>
+                                <p data-i18n="settings.shortcut_desc">Uygulama arka plandayken sesleri açıp kapatmak için global kısayol tuşu atayın.</p>
+                            </div>
+                            <div class="shortcut-recorder-container" style="display: flex; gap: 8px; align-items: center;">
+                                <button id="btn-record-shortcut" class="btn secondary" style="min-width: 150px; text-align: center; justify-content: center; font-family: inherit; font-size: 13px;" data-i18n="settings.shortcut_record_placeholder">Kısayol Kaydetmek İçin Tıkla...</button>
+                                <button id="btn-clear-shortcut" class="btn secondary" style="padding: 6px 10px; min-width: auto; color: var(--accent-gold);" title="Kısayolu Kaldır">✕</button>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- About View -->

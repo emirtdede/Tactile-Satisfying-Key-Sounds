@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db/database');
@@ -26,6 +26,7 @@ async function initializeApp() {
     createWindow(!startMin);
     setupHook();
     setupTray();
+    registerGlobalShortcut();
     
     const profiles = db.getProfiles();
     console.log("Loaded profiles count:", profiles.length);
@@ -41,6 +42,41 @@ async function initializeApp() {
             db.setSetting('selected_profile', profiles[0].id);
             loadProfileIntoMemory(profiles[0].id);
         }
+    }
+}
+
+function registerGlobalShortcut() {
+    const shortcut = db.getSetting('shortcut_toggle_mute') || 'Control+K';
+    globalShortcut.unregisterAll();
+    if (!shortcut) return;
+    try {
+        const success = globalShortcut.register(shortcut, () => {
+            toggleMuteFromShortcut();
+        });
+        if (success) {
+            console.log("Registered global shortcut:", shortcut);
+        } else {
+            console.error("Failed to register shortcut:", shortcut);
+        }
+    } catch (err) {
+        console.error("Failed to register shortcut:", shortcut, err);
+    }
+}
+
+function toggleMuteFromShortcut() {
+    is_muted = !is_muted;
+    db.setSetting('muted', is_muted ? 'true' : 'false');
+    if (is_muted) {
+        uIOhook.stop();
+        activeKeys.clear();
+    } else {
+        uIOhook.start();
+    }
+    
+    setupTray(); // Rebuild Context Menu to show correct checkbox
+    
+    if (win && !win.isDestroyed()) {
+        win.webContents.send('mute-status-changed', is_muted);
     }
 }
 
@@ -168,12 +204,61 @@ function createWindow(show) {
     });
 }
 
+let clickTimeout = null;
+
 function setupTray() {
     if (db.getSetting('tray_icon') !== 'true') return;
-    if (tray) return;
+    
+    if (!tray) {
+        tray = new Tray(SYSTRAY_ICON);
+        tray.setToolTip('Tactile');
 
-    tray = new Tray(SYSTRAY_ICON);
-    tray.setToolTip('Tactile');
+        const executeTrayAction = (actionType) => {
+            const settingKey = actionType === 'single' ? 'tray_click_single' : 'tray_click_double';
+            const action = db.getSetting(settingKey) || (actionType === 'single' ? 'open' : 'none');
+            
+            if (action === 'open') {
+                if (win) {
+                    win.show();
+                    win.focus();
+                }
+            } else if (action === 'mute') {
+                is_muted = !is_muted;
+                db.setSetting('muted', is_muted ? 'true' : 'false');
+                if (is_muted) {
+                    uIOhook.stop();
+                    activeKeys.clear();
+                } else {
+                    uIOhook.start();
+                }
+                setupTray(); // Rebuild Context Menu to show correct checkbox
+                if (win && !win.isDestroyed()) {
+                    win.webContents.send('mute-status-changed', is_muted);
+                }
+            }
+        };
+
+        tray.on('click', () => {
+            if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+                executeTrayAction('double');
+            } else {
+                clickTimeout = setTimeout(() => {
+                    clickTimeout = null;
+                    executeTrayAction('single');
+                }, 250);
+            }
+        });
+
+        tray.on('double-click', () => {
+            if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+            }
+            executeTrayAction('double');
+        });
+    }
 
     const contextMenu = Menu.buildFromTemplate([
         { label: 'Tactile', click: () => { win.show(); win.focus(); } },
@@ -193,13 +278,13 @@ function setupTray() {
                 if (win && !win.isDestroyed()) {
                     win.webContents.send('mute-status-changed', is_muted);
                 }
+                setupTray(); // Rebuild context menu
             }
         },
         { label: t('tray.quit'), click: () => { app.isQuiting = true; app.quit(); } }
     ]);
 
     tray.setContextMenu(contextMenu);
-    tray.on("double-click", () => { win.show(); win.focus(); });
 }
 
 // IPC Handlers
@@ -260,6 +345,33 @@ ipcMain.handle('set-active-profile', (e, id) => {
 });
 
 ipcMain.handle('get-app-version', () => app.getVersion());
+
+ipcMain.handle('register-shortcut', (e, shortcut) => {
+    globalShortcut.unregisterAll();
+    if (!shortcut) {
+        db.setSetting('shortcut_toggle_mute', '');
+        return { success: true };
+    }
+    try {
+        const success = globalShortcut.register(shortcut, () => {
+            toggleMuteFromShortcut();
+        });
+        if (success) {
+            db.setSetting('shortcut_toggle_mute', shortcut);
+            return { success: true };
+        } else {
+            return { success: false, error: 'Registration failed (shortcut might be in use)' };
+        }
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('unregister-shortcut', () => {
+    globalShortcut.unregisterAll();
+    db.setSetting('shortcut_toggle_mute', '');
+    return { success: true };
+});
 
 // Select Folder/File Dialog API
 const { dialog } = require('electron');
@@ -394,6 +506,10 @@ if (!gotTheLock) {
     });
 
     app.on('ready', initializeApp);
+
+    app.on('will-quit', () => {
+        globalShortcut.unregisterAll();
+    });
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') app.quit();
