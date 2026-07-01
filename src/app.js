@@ -1382,7 +1382,7 @@ async function previewProfile(id) {
     const details = await window.api.getProfileDetails(id);
     if (!details) return;
     
-    // Play a preview sound directly in UI
+    // Play a preview sound directly in UI using HTML5 Audio (bypasses file:/// XHR CORS restrictions)
     const play_type = details.key_define_type || 'single';
     const vol = parseInt(document.getElementById('global-volume').value) / 100;
     
@@ -1406,21 +1406,11 @@ async function previewProfile(id) {
                 format: format,
                 sprite: formattedSprite,
                 volume: vol,
-                html5: false,
+                html5: true,
                 preload: true,
                 onloaderror: (id, err) => {
-                    console.warn("Preview load error, retrying with html5: true", err);
-                    const fallback = new Howl({
-                        src: [srcPath],
-                        format: format,
-                        sprite: formattedSprite,
-                        volume: vol,
-                        html5: true,
-                        preload: true
-                    });
-                    fallback.once('load', () => fallback.play(testKey));
-                    fallback.once('end', () => fallback.unload());
-                    fallback.once('playerror', () => fallback.unload());
+                    console.error("Preview load error (single-sprite):", err);
+                    previewHowl.unload();
                 }
             });
             previewHowl.once('load', () => {
@@ -1429,7 +1419,6 @@ async function previewProfile(id) {
             previewHowl.once('end', () => previewHowl.unload());
             previewHowl.once('playerror', () => previewHowl.unload());
         } else {
-            // No sprites — use html5: true for best WAV/format compatibility
             const previewHowl = new Howl({
                 src: [srcPath],
                 format: format,
@@ -1437,7 +1426,8 @@ async function previewProfile(id) {
                 html5: true,
                 preload: true,
                 onloaderror: (id, err) => {
-                    console.warn("Preview load error (no-sprite):", err);
+                    console.error("Preview load error (single-no-sprite):", err);
+                    previewHowl.unload();
                 }
             });
             previewHowl.once('load', () => {
@@ -1455,12 +1445,18 @@ async function previewProfile(id) {
             const previewHowl = new Howl({
                 src: [srcPath],
                 volume: vol,
-                html5: false,
-                preload: true
+                html5: true,
+                preload: true,
+                onloaderror: (id, err) => {
+                    console.error("Preview load error (multi):", err);
+                    previewHowl.unload();
+                }
             });
             previewHowl.once('load', () => {
                 previewHowl.play();
             });
+            previewHowl.once('end', () => previewHowl.unload());
+            previewHowl.once('playerror', () => previewHowl.unload());
         }
     }
 }
