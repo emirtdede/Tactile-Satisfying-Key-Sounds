@@ -352,8 +352,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 howl.volume(vol);
                 if (howl._sprite[data.sound_id]) {
+                    // Has a specific sprite for this key — play it (normal sprite-based packs)
                     howl.play(data.sound_id);
-                } else {
+                } else if (!data.sound_id.endsWith('-up')) {
+                    // No sprite match AND it's a keydown event → play the whole file
+                    // Skip keyup ("-up") events for custom profiles without keyup mappings
+                    howl.stop(); // Stop any previous playback to prevent overlapping
                     howl.play();
                 }
             } else {
