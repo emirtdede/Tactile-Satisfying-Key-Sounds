@@ -3,7 +3,7 @@
 Son güncelleme: 2026-06-30
 
 ## Proje Özeti
-Mechvibes, mekanik klavye seslerini yazarken oynatan bir Electron masaüstü uygulamasıdır. Küresel bir kullanıcı kitlesi hedeflenmektedir.
+Tactile, mekanik klavye seslerini yazarken oynatan bir Electron masaüstü uygulamasıdır. Küresel bir kullanıcı kitlesi hedeflenmektedir.
 
 ## Teknik Özet
 - Frontend: HTML/CSS/VanillaJS (Glassmorphism UI)
