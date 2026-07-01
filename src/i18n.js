@@ -71,6 +71,8 @@ const translations = {
         'about.terms_desc': 'Son kullanıcı lisans sözleşmesi',
         'about.privacy_title': 'Gizlilik Politikası',
         'about.privacy_desc': 'Veri toplama ve gizlilik bilgileri',
+        'about.licenses_title': 'Üçüncü Taraf Lisansları',
+        'about.licenses_desc': 'Açık kaynaklı kütüphane lisans bildirimleri',
         'about.copyright': 'Telif Hakkı © 2026 Vellium. Tüm hakları saklıdır.',
         'about.registered': 'Tactile, Vellium.dev\'in tescilli bir ürünüdür.',
 
@@ -155,6 +157,20 @@ const translations = {
             
             <h4>2. Veri Güvenliği ve İletişim</h4>
             <p>Yerel verilerinizin güvenliği tamamen bilgisayarınızın işletim sistemi sınırları içerisinde korunmaktadır. Yazılımımız üzerinden dışarıya herhangi bir veri aktarımı gerçekleşmemektedir. Gizlilik sorularınız için bizimle <strong>support@vellium.dev</strong> üzerinden iletişime geçebilirsiniz.</p>
+        `,
+        'legal.licenses_title': 'Açık Kaynak Lisansları',
+        'legal.licenses_body': `
+            <h4>ÜÇÜNCÜ TARAF AÇIK KAYNAK LİSANSLARI</h4>
+            <p>Tactile, gelişim sürecine katkı sağlayan aşağıdaki açık kaynaklı kütüphaneleri ve yazılımları kullanmaktadır:</p>
+            <ul>
+                <li><strong>Electron:</strong> MIT Lisansı - Copyright (c) GitHub, Inc.</li>
+                <li><strong>Howler.js:</strong> MIT Lisansı - Copyright (c) 2013-2020 James Simpson</li>
+                <li><strong>sql.js:</strong> MIT Lisansı - Copyright (c) 2012 Alon Zakai</li>
+                <li><strong>uiohook-napi:</strong> MIT Lisansı - Copyright (c) 2020 Wilix Lead</li>
+                <li><strong>Sharp:</strong> Apache License 2.0 - Copyright Lovell Fuller</li>
+                <li><strong>fs-extra:</strong> MIT Lisansı - Copyright (c) 2010 JP Richardson</li>
+                <li><strong>adm-zip:</strong> MIT Lisansı - Copyright (c) 2012-2023 C.T.Co</li>
+            </ul>
         `,
 
 
@@ -258,6 +274,8 @@ const translations = {
         'about.terms_desc': 'End user license agreement',
         'about.privacy_title': 'Privacy Policy',
         'about.privacy_desc': 'Data collection and privacy information',
+        'about.licenses_title': 'Third-Party Licenses',
+        'about.licenses_desc': 'Open source library license notices',
         'about.copyright': 'Copyright © 2026 Vellium. All rights reserved.',
         'about.registered': 'Tactile is a registered product of Vellium.dev.',
         'modal.create_title': 'Create New Sound List (Profile)',
@@ -330,6 +348,20 @@ const translations = {
             
             <h4>2. Data Security and Communication</h4>
             <p>The security of your local data is completely protected within the limits of your computer's operating system. No data transmission is carried out to the outside through our software. For your privacy questions, you can contact us at <strong>support@vellium.dev</strong>.</p>
+        `,
+        'legal.licenses_title': 'Open Source Licenses',
+        'legal.licenses_body': `
+            <h4>THIRD-PARTY OPEN SOURCE LICENSES</h4>
+            <p>Tactile uses the following open source libraries and software that contribute to its development:</p>
+            <ul>
+                <li><strong>Electron:</strong> MIT License - Copyright (c) GitHub, Inc.</li>
+                <li><strong>Howler.js:</strong> MIT License - Copyright (c) 2013-2020 James Simpson</li>
+                <li><strong>sql.js:</strong> MIT License - Copyright (c) 2012 Alon Zakai</li>
+                <li><strong>uiohook-napi:</strong> MIT License - Copyright (c) 2020 Wilix Lead</li>
+                <li><strong>Sharp:</strong> Apache License 2.0 - Copyright Lovell Fuller</li>
+                <li><strong>fs-extra:</strong> MIT License - Copyright (c) 2010 JP Richardson</li>
+                <li><strong>adm-zip:</strong> MIT License - Copyright (c) 2012-2023 C.T.Co</li>
+            </ul>
         `,
 
         'context.rename': 'Rename',

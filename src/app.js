@@ -1253,6 +1253,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             modalLink.innerText = 'vellium.dev/eula';
             modalLink.onclick = (e) => { e.preventDefault(); window.api.openExternal('https://vellium.dev/eula'); };
             modalBody.innerHTML = t('legal.terms_body');
+        } else if (type === 'licenses') {
+            modalTitle.innerText = t('legal.licenses_title');
+            modalLink.innerText = 'vellium.dev/licenses';
+            modalLink.onclick = (e) => { e.preventDefault(); window.api.openExternal('https://vellium.dev/licenses'); };
+            modalBody.innerHTML = t('legal.licenses_body');
         } else {
             modalTitle.innerText = t('legal.privacy_title');
             modalLink.innerText = 'vellium.dev/privacy';
@@ -1270,6 +1275,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('link-terms').addEventListener('click', (e) => {
         e.preventDefault(); showLegalModal('terms');
+    });
+    document.getElementById('link-licenses').addEventListener('click', (e) => {
+        e.preventDefault(); showLegalModal('licenses');
     });
 
 
