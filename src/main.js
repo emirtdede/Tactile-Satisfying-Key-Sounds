@@ -384,6 +384,20 @@ ipcMain.handle('set-dynamic-app-icon', (e, pngDataUrl) => {
     }
 });
 
+ipcMain.handle('get-svg-data-uri', (e, iconType) => {
+    try {
+        const svgPath = path.join(__dirname, iconType === 'light' ? '../public/Tactile-light.svg' : '../public/Tactile-bg.svg');
+        if (fs.existsSync(svgPath)) {
+            const svgContent = fs.readFileSync(svgPath, 'utf-8');
+            const base64 = Buffer.from(svgContent).toString('base64');
+            return `data:image/svg+xml;base64,${base64}`;
+        }
+    } catch (err) {
+        console.error("Failed to read SVG:", err);
+    }
+    return null;
+});
+
 ipcMain.handle('db-get-profiles', () => db.getProfiles());
 ipcMain.handle('db-get-profile-details', (e, id) => {
     const details = db.getProfileDetails(id);

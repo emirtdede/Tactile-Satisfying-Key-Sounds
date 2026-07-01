@@ -481,8 +481,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyAppIcon = async (iconType) => {
         try {
-            const svgUrl = iconType === 'light' ? '../public/Tactile-light.svg' : '../public/Tactile-bg.svg';
-            const pngDataUrl = await rasterizeSvgToPng(svgUrl);
+            const dataUri = await window.api.getSvgDataUri(iconType);
+            if (!dataUri) return;
+            const pngDataUrl = await rasterizeSvgToPng(dataUri);
             await window.api.setDynamicAppIcon(pngDataUrl);
         } catch (err) {
             console.error("Failed to apply app icon:", err);

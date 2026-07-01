@@ -17,3 +17,13 @@
     installed:
     DetailPrint "VC++ Redistributable installed"
 !macroend
+
+!macro customInit
+    # Kill running instances before install
+    nsExec::Exec `taskkill /F /IM Tactile.exe`
+!macroend
+
+!macro customUnInit
+    # Kill running instances before uninstall
+    nsExec::Exec `taskkill /F /IM Tactile.exe`
+!macroend

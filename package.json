@@ -16,7 +16,7 @@
   "keywords": [],
   "homepage": "https://vellium.dev",
   "author": {
-    "name": "Vellium",
+    "name": "Vellium.dev",
     "email": "support@vellium.dev"
   },
   "license": "MIT",
@@ -32,9 +32,11 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "./build/installer.nsh"
+      "include": "./build/installer.nsh",
+      "uninstallDisplayName": "Tactile"
     },
     "win": {
+      "publisherName": "Vellium.dev",
       "target": [
         {
           "target": "nsis",
