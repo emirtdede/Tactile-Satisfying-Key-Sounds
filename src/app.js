@@ -557,6 +557,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Clear search box when switching tabs
             const searchInput = document.getElementById('search-input');
             if (searchInput) searchInput.value = '';
+            const btnClearSearch = document.getElementById('btn-clear-search');
+            if (btnClearSearch) btnClearSearch.style.display = 'none';
             
             switchView(view);
         });
@@ -564,9 +566,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Search input listener
     const searchInput = document.getElementById('search-input');
+    const btnClearSearch = document.getElementById('btn-clear-search');
+    
+    const updateSearchClearButton = () => {
+        if (searchInput && btnClearSearch) {
+            if (searchInput.value.trim() !== '') {
+                btnClearSearch.style.display = 'flex';
+            } else {
+                btnClearSearch.style.display = 'none';
+            }
+        }
+    };
+
     if (searchInput) {
         searchInput.addEventListener('input', () => {
+            updateSearchClearButton();
             renderProfiles(current_view);
+        });
+    }
+
+    if (btnClearSearch && searchInput) {
+        btnClearSearch.addEventListener('click', () => {
+            searchInput.value = '';
+            updateSearchClearButton();
+            renderProfiles(current_view);
+            searchInput.focus();
         });
     }
 

@@ -190,11 +190,16 @@ body {
     border-bottom: 1px solid var(--border-subtle);
 }
 
+.search-box {
+    position: relative;
+    display: inline-block;
+}
+
 .search-box input {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
-    padding: 8px 16px;
+    padding: 8px 36px 8px 16px;
     border-radius: 20px;
     width: 240px;
     outline: none;
@@ -204,6 +209,28 @@ body {
 .search-box input:focus {
     border-color: var(--accent-gold);
     box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+.btn-clear-search {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: var(--transition);
+}
+
+.btn-clear-search:hover {
+    color: var(--accent-gold);
 }
 
 .global-controls {
