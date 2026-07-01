@@ -318,28 +318,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     window.api.onPlaySound((data) => {
-        // We only use this for UI preview if needed, but the main process handles global hook playback.
-        // Yes, Howler lives in the renderer.
-        const vol = parseInt(document.getElementById('global-volume').value) / 100;
-        
-        if (data.type === 'single') {
-            if (audio_instances['single']) {
-                audio_instances['single'].volume(vol);
-                const spriteExists = audio_instances['single']._sprite && 
-                                     Object.keys(audio_instances['single']._sprite).length > 0 && 
-                                     data.sound_id in audio_instances['single']._sprite;
-                if (spriteExists) {
-                    audio_instances['single'].play(data.sound_id);
-                } else {
-                    audio_instances['single'].play();
+        try {
+            const vol = parseInt(document.getElementById('global-volume').value) / 100;
+            
+            if (data.type === 'single') {
+                if (audio_instances['single']) {
+                    audio_instances['single'].volume(vol);
+                    const spriteExists = audio_instances['single']._sprite && 
+                                         Object.keys(audio_instances['single']._sprite).length > 0 && 
+                                         data.sound_id in audio_instances['single']._sprite;
+                    if (spriteExists) {
+                        audio_instances['single'].play(data.sound_id);
+                    } else {
+                        audio_instances['single'].play();
+                    }
+                }
+            } else {
+                const h = audio_instances[data.sound_id];
+                if (h) {
+                    h.volume(vol);
+                    h.play();
                 }
             }
-        } else {
-            const h = audio_instances[data.sound_id];
-            if (h) {
-                h.volume(vol);
-                h.play();
-            }
+        } catch (err) {
+            console.error("DEBUG: onPlaySound failed with:", err, "for data:", data);
         }
     });
 
