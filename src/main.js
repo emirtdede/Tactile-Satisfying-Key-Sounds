@@ -130,8 +130,8 @@ function setupHook() {
 
 function createWindow(show) {
     win = new BrowserWindow({
-        width: 1024,
-        height: 800,
+        width: 1078,
+        height: 705,
         minWidth: 800,
         minHeight: 500,
         frame: false, // Custom titlebar
