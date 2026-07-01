@@ -295,14 +295,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.api.onPlaySound((data) => {
         // We only use this for UI preview if needed, but the main process handles global hook playback.
-        // Wait, the main process sends 'play-sound' here so the RENDERER actually plays it!
         // Yes, Howler lives in the renderer.
         const vol = parseInt(document.getElementById('global-volume').value) / 100;
         
         if (data.type === 'single') {
             if (audio_instances['single']) {
                 audio_instances['single'].volume(vol);
-                audio_instances['single'].play(data.sound_id);
+                const spriteExists = audio_instances['single']._sprite && 
+                                     Object.keys(audio_instances['single']._sprite).length > 0 && 
+                                     data.sound_id in audio_instances['single']._sprite;
+                if (spriteExists) {
+                    audio_instances['single'].play(data.sound_id);
+                } else {
+                    audio_instances['single'].play();
+                }
             }
         } else {
             const h = audio_instances[data.sound_id];
@@ -893,13 +899,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Custom Profile (List) Creation Modal Toggles
     const createProfileModal = document.getElementById('create-profile-modal');
+    let selectedSoundPath = null;
     
     document.getElementById('btn-create-profile-modal').addEventListener('click', () => {
         createProfileModal.classList.add('active');
+        resetCreateProfileForm();
+    });
+
+    const resetCreateProfileForm = () => {
+        document.getElementById('input-new-profile-name').value = '';
+        document.getElementById('input-new-profile-desc').value = '';
+        document.getElementById('select-new-profile-material').value = materials[0] || 'PBT';
+        const targetInput = document.getElementById('input-new-profile-material-new');
+        if (targetInput) targetInput.value = '';
+        const targetWrap = document.getElementById('wrap-new-profile-material-new');
+        if (targetWrap) {
+            targetWrap.style.maxHeight = '0';
+            targetWrap.style.opacity = '0';
+            targetWrap.style.marginTop = '0';
+            targetWrap.style.display = 'none';
+        }
+        selectedSoundPath = null;
+        const soundLabel = document.getElementById('label-selected-profile-sound');
+        if (soundLabel) soundLabel.innerText = t('modal.no_sound_selected');
+    };
+
+    document.getElementById('btn-select-profile-sound').addEventListener('click', async () => {
+        const filePath = await window.api.selectAudioFile();
+        if (filePath) {
+            selectedSoundPath = filePath;
+            const fileName = filePath.substring(filePath.lastIndexOf('\\') + 1).substring(filePath.lastIndexOf('/') + 1);
+            document.getElementById('label-selected-profile-sound').innerText = fileName;
+        }
     });
 
     document.getElementById('modal-create-close-x').addEventListener('click', () => {
         createProfileModal.classList.remove('active');
+        resetCreateProfileForm();
     });
 
     document.getElementById('modal-create-save-btn').addEventListener('click', async () => {
@@ -935,29 +971,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            console.log('[CREATE] calling createProfile with:', name, type, material, desc);
-            const res = await window.api.createProfile(name, type, material, desc);
+            console.log('[CREATE] calling createProfile with:', name, type, material, desc, selectedSoundPath);
+            const res = await window.api.createProfile(name, type, material, desc, selectedSoundPath);
             console.log('[CREATE] result:', res);
             
             if (res.success) {
                 await showCustomAlert(`${t('msg.profile_created')} ${name}`);
                 
-                // Clean custom material input fields and reset state
-                const targetWrap = document.getElementById('wrap-new-profile-material-new');
-                if (targetWrap) {
-                    targetWrap.style.maxHeight = '0';
-                    targetWrap.style.opacity = '0';
-                    targetWrap.style.marginTop = '0';
-                    targetWrap.style.display = 'none';
-                }
-                const targetInput = document.getElementById('input-new-profile-material-new');
-                if (targetInput) targetInput.value = '';
-
-                // Reset form
-                document.getElementById('input-new-profile-name').value = '';
-                document.getElementById('input-new-profile-desc').value = '';
-                document.getElementById('select-new-profile-material').value = materials[0] || 'PBT';
-
+                resetCreateProfileForm();
                 createProfileModal.classList.remove('active');
                 profiles = await window.api.getProfiles(); // Reload local list
                 loadAndRenderMaterials();

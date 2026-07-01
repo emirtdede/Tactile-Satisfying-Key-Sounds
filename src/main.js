@@ -410,7 +410,7 @@ ipcMain.handle('select-audio-file', async () => {
     return result.filePaths[0];
 });
 
-ipcMain.handle('create-profile', async (e, name, type, material, description) => {
+ipcMain.handle('create-profile', async (e, name, type, material, description, soundPath) => {
     try {
         const id = 'custom-' + Date.now();
         const userDataPath = app.getPath('userData');
@@ -422,13 +422,24 @@ ipcMain.handle('create-profile', async (e, name, type, material, description) =>
         const profileFolder = path.join(customProfilesDir, id);
         fs.mkdirSync(profileFolder);
 
+        let copiedSoundFilename = null;
+        let playType = 'multi';
+
+        if (soundPath && fs.existsSync(soundPath)) {
+            copiedSoundFilename = path.basename(soundPath);
+            const destinationPath = path.join(profileFolder, copiedSoundFilename);
+            fs.copyFileSync(soundPath, destinationPath);
+            playType = 'single';
+        }
+
         const config = {
             id: id,
             name: name,
             type: type,
             material: material,
             description: description || `User created sound list (profile).`,
-            key_define_type: 'multi',
+            key_define_type: playType,
+            sound: copiedSoundFilename,
             defines: {}
         };
 

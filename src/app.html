@@ -345,6 +345,14 @@
                     <label for="input-new-profile-material-new" data-i18n="modal.new_material">Yeni Malzeme Adı</label>
                     <input type="text" id="input-new-profile-material-new" class="form-input" data-i18n-placeholder="modal.new_material_placeholder" placeholder="ör. Pom, Pirinç, Çelik">
                 </div>
+                
+                <div class="form-group" style="margin-top: 12px;">
+                    <label data-i18n="modal.sound_file">Ses Dosyası (İsteğe Bağlı)</label>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                        <button class="btn secondary" id="btn-select-profile-sound" style="margin: 0; min-width: 150px; font-family: inherit; font-size: 13px;" data-i18n="modal.select_sound">Ses Dosyası Seç</button>
+                        <span id="label-selected-profile-sound" style="color: var(--text-secondary); font-size: 13px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 250px;" data-i18n="modal.no_sound_selected">Seçilmedi (Boş Paket)</span>
+                    </div>
+                </div>
             </div>
             
             <footer class="modal-footer">

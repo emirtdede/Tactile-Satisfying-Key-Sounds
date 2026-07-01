@@ -29,7 +29,7 @@ contextBridge.exposeInMainWorld('api', {
     selectAudioFile: () => ipcRenderer.invoke('select-audio-file'),
     importFolderPack: (folderPath) => ipcRenderer.invoke('import-folder-pack', folderPath),
     importMixedZipPack: (targetProfileId, keycode, assignedFilePath) => ipcRenderer.invoke('import-mixed-zip-pack', targetProfileId, keycode, assignedFilePath),
-    createProfile: (name, type, material, description) => ipcRenderer.invoke('create-profile', name, type, material, description),
+    createProfile: (name, type, material, description, soundPath) => ipcRenderer.invoke('create-profile', name, type, material, description, soundPath),
 
     // Playback and UI Events from Main
     onLoadPackSounds: (callback) => ipcRenderer.on('load-pack-sounds', (e, data) => callback(data)),

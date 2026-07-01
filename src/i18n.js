@@ -190,6 +190,9 @@ const translations = {
         // ─── System Tray ───
         'tray.mute': 'Sessiz',
         'tray.quit': 'Çıkış',
+        'modal.sound_file': 'Ses Dosyası (İsteğe Bağlı)',
+        'modal.select_sound': 'Ses Dosyası Seç',
+        'modal.no_sound_selected': 'Seçilmedi (Boş Paket)',
     },
     en: {
         'app.subtitle': 'Satisfying Key Sounds',
@@ -344,6 +347,9 @@ const translations = {
         'msg.delete_category_title': 'Delete Category',
         'tray.mute': 'Mute',
         'tray.quit': 'Quit',
+        'modal.sound_file': 'Sound File (Optional)',
+        'modal.select_sound': 'Select Sound File',
+        'modal.no_sound_selected': 'No sound selected (Empty Pack)',
     }
 };
 
