@@ -274,19 +274,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         const vol = parseInt(document.getElementById('global-volume').value) / 100;
         
         if (soundData.type === 'single') {
-            audio_instances['single'] = new Howl({
-                src: soundData.src,
-                sprite: soundData.sprite,
-                volume: vol,
-                html5: false, // Forces Web Audio API (highly responsive, low latency)
-                preload: true,
-                onloaderror: (id, err) => {
-                    console.error("Howler Load Error for Single Pack:", err, soundData.src);
-                },
-                onplayerror: (id, err) => {
-                    console.error("Howler Play Error for Single Pack:", err);
+            const createHowlSingle = (useHtml5 = false) => {
+                const howlOptions = {
+                    src: soundData.src,
+                    volume: vol,
+                    html5: useHtml5,
+                    preload: true,
+                    onloaderror: (id, err) => {
+                        console.error("Howler Load Error for Single Pack:", err, soundData.src);
+                        if (!useHtml5) {
+                            console.warn("Attempting fallback to html5: true for single pack due to load/decode error...");
+                            if (audio_instances['single']) {
+                                audio_instances['single'].unload();
+                            }
+                            audio_instances['single'] = createHowlSingle(true);
+                        }
+                    },
+                    onplayerror: (id, err) => {
+                        console.error("Howler Play Error for Single Pack:", err);
+                    }
+                };
+                if (soundData.sprite && Object.keys(soundData.sprite).length > 0) {
+                    howlOptions.sprite = soundData.sprite;
                 }
-            });
+                return new Howl(howlOptions);
+            };
+            audio_instances['single'] = createHowlSingle(false);
         } else {
             for (const kc in soundData.data) {
                 audio_instances[kc] = new Howl({
@@ -1360,7 +1373,18 @@ async function previewProfile(id) {
                 sprite: formattedSprite,
                 volume: vol,
                 html5: false,
-                preload: true
+                preload: true,
+                onloaderror: (id, err) => {
+                    console.warn("Preview load error, retrying with html5: true", err);
+                    const fallback = new Howl({
+                        src: [srcPath],
+                        sprite: formattedSprite,
+                        volume: vol,
+                        html5: true,
+                        preload: true
+                    });
+                    fallback.once('load', () => fallback.play(testKey));
+                }
             });
             previewHowl.once('load', () => {
                 previewHowl.play(testKey);
@@ -1370,7 +1394,17 @@ async function previewProfile(id) {
                 src: [srcPath],
                 volume: vol,
                 html5: false,
-                preload: true
+                preload: true,
+                onloaderror: (id, err) => {
+                    console.warn("Preview load error, retrying with html5: true", err);
+                    const fallback = new Howl({
+                        src: [srcPath],
+                        volume: vol,
+                        html5: true,
+                        preload: true
+                    });
+                    fallback.once('load', () => fallback.play());
+                }
             });
             previewHowl.once('load', () => {
                 previewHowl.play();
