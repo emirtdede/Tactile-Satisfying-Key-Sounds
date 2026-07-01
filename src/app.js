@@ -277,6 +277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const createHowlSingle = (useHtml5 = false) => {
                 const howlOptions = {
                     src: soundData.src,
+                    format: soundData.format,
                     volume: vol,
                     html5: useHtml5,
                     preload: true,
@@ -304,6 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             for (const kc in soundData.data) {
                 audio_instances[kc] = new Howl({
                     src: [soundData.data[kc].src],
+                    format: soundData.data[kc].format,
                     volume: vol,
                     html5: false, // Forces Web Audio API
                     preload: true,
