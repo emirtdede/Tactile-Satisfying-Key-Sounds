@@ -298,11 +298,16 @@ function setupTray() {
     }
 
     const contextMenu = Menu.buildFromTemplate([
-        { label: 'Tactile', click: () => { win.show(); win.focus(); } },
+        { 
+            label: 'Tactile', 
+            icon: nativeImage.createFromPath(path.join(__dirname, 'assets/tray-app.png')),
+            click: () => { win.show(); win.focus(); } 
+        },
         { 
             label: t('tray.mute'), 
             type: 'checkbox', 
             checked: is_muted,
+            icon: nativeImage.createFromPath(path.join(__dirname, is_muted ? 'assets/tray-mute.png' : 'assets/tray-sound.png')),
             click: () => {
                 is_muted = !is_muted;
                 db.setSetting('muted', is_muted ? 'true' : 'false');
@@ -318,7 +323,11 @@ function setupTray() {
                 setupTray(); // Rebuild context menu
             }
         },
-        { label: t('tray.quit'), click: () => { app.isQuiting = true; app.quit(); } }
+        { 
+            label: t('tray.quit'), 
+            icon: nativeImage.createFromPath(path.join(__dirname, 'assets/tray-quit.png')),
+            click: () => { app.isQuiting = true; app.quit(); } 
+        }
     ]);
 
     tray.setContextMenu(contextMenu);
