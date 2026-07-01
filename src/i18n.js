@@ -213,6 +213,7 @@ const translations = {
 
         // ─── System Tray ───
         'tray.mute': 'Sessiz',
+        'tray.unmute': 'Sesi Aç',
         'tray.quit': 'Çıkış',
         'modal.sound_file': 'Ses Dosyası (İsteğe Bağlı)',
         'modal.select_sound': 'Ses Dosyası Seç',
@@ -394,6 +395,7 @@ const translations = {
         'msg.rename_category_title': 'Rename Category',
         'msg.delete_category_title': 'Delete Category',
         'tray.mute': 'Mute',
+        'tray.unmute': 'Unmute',
         'tray.quit': 'Quit',
         'modal.sound_file': 'Sound File (Optional)',
         'modal.select_sound': 'Select Sound File',

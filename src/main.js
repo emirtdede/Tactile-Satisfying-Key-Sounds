@@ -304,9 +304,7 @@ function setupTray() {
             click: () => { win.show(); win.focus(); } 
         },
         { 
-            label: t('tray.mute'), 
-            type: 'checkbox', 
-            checked: is_muted,
+            label: is_muted ? t('tray.unmute') : t('tray.mute'), 
             icon: nativeImage.createFromPath(path.join(__dirname, is_muted ? 'assets/tray-mute.png' : 'assets/tray-sound.png')),
             click: () => {
                 is_muted = !is_muted;
