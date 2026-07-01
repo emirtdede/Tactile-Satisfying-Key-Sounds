@@ -432,7 +432,12 @@ ipcMain.handle('set-dynamic-app-icon', (e, pngDataUrl, iconType) => {
 
 ipcMain.handle('get-svg-data-uri', (e, iconType) => {
     try {
-        const svgPath = path.join(__dirname, iconType === 'light' ? '../public/Tactile-light.svg' : '../public/Tactile-bg.svg');
+        const isLight = iconType.includes('light');
+        const isSmall = iconType.includes('small');
+        const fileName = isLight ? 
+            (isSmall ? '../public/Tactile-light-small.svg' : '../public/Tactile-light.svg') : 
+            (isSmall ? '../public/Tactile-bg-small.svg' : '../public/Tactile-bg.svg');
+        const svgPath = path.join(__dirname, fileName);
         if (fs.existsSync(svgPath)) {
             const svgContent = fs.readFileSync(svgPath, 'utf-8');
             const base64 = Buffer.from(svgContent).toString('base64');

@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyAppIcon = async (iconType) => {
         try {
-            const dataUri = await window.api.getSvgDataUri(iconType);
+            const dataUri = await window.api.getSvgDataUri(iconType + '-small');
             if (!dataUri) return;
             const pngDataUrl = await rasterizeSvgToPng(dataUri);
             await window.api.setDynamicAppIcon(pngDataUrl, iconType);
