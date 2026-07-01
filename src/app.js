@@ -154,9 +154,11 @@ function loadAndRenderMaterials(skipSelectSync = false) {
     const rebuildSelectOptions = (selectId) => {
         const select = document.getElementById(selectId);
         if (!select) return;
-        if (select.children.length > 0) return; // Already populated from HTML or prior call
         
         const currentVal = select.value;
+        
+        // Clear existing options and rebuild with current materials list
+        select.innerHTML = '';
         
         materials.forEach(mat => {
             const opt = document.createElement('option');
@@ -1427,24 +1429,15 @@ async function previewProfile(id) {
             previewHowl.once('end', () => previewHowl.unload());
             previewHowl.once('playerror', () => previewHowl.unload());
         } else {
+            // No sprites — use html5: true for best WAV/format compatibility
             const previewHowl = new Howl({
                 src: [srcPath],
                 format: format,
                 volume: vol,
-                html5: false,
+                html5: true,
                 preload: true,
                 onloaderror: (id, err) => {
-                    console.warn("Preview load error, retrying with html5: true", err);
-                    const fallback = new Howl({
-                        src: [srcPath],
-                        format: format,
-                        volume: vol,
-                        html5: true,
-                        preload: true
-                    });
-                    fallback.once('load', () => fallback.play());
-                    fallback.once('end', () => fallback.unload());
-                    fallback.once('playerror', () => fallback.unload());
+                    console.warn("Preview load error (no-sprite):", err);
                 }
             });
             previewHowl.once('load', () => {
