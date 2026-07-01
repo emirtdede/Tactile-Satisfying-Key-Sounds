@@ -281,7 +281,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('global-volume').value = settings.volume;
     document.getElementById('setting-tray').checked = settings.tray_icon === 'true';
     document.getElementById('setting-startup').checked = settings.start_minimized === 'true'; // Map to start minimized / startup behavior
-    document.getElementById('setting-mute').checked = settings.muted === 'true';
+    
+    // Mute UI Control & Synchronization
+    const btnMute = document.getElementById('btn-toggle-mute');
+    function updateMuteUI(isMuted) {
+        if (isMuted) {
+            btnMute.innerHTML = `
+                <svg class="volume-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+            `;
+            btnMute.title = "Ses Aç";
+        } else {
+            btnMute.innerHTML = `
+                <svg class="volume-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            `;
+            btnMute.title = "Sessiz";
+        }
+        const settingMute = document.getElementById('setting-mute');
+        if (settingMute) {
+            settingMute.checked = isMuted;
+        }
+    }
+
+    const initialMuted = settings.muted === 'true';
+    updateMuteUI(initialMuted);
     
     const langSelect = document.getElementById('setting-lang');
     if (langSelect) {
@@ -313,8 +342,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.api.updateSetting('start_minimized', e.target.checked ? 'true' : 'false');
     });
 
-    document.getElementById('setting-mute').addEventListener('change', (e) => {
-        window.api.updateSetting('muted', e.target.checked ? 'true' : 'false');
+    document.getElementById('setting-mute').addEventListener('change', async (e) => {
+        const nextMute = e.target.checked;
+        settings.muted = nextMute ? 'true' : 'false';
+        await window.api.updateSetting('muted', settings.muted);
+        updateMuteUI(nextMute);
+    });
+
+    btnMute.addEventListener('click', async () => {
+        const nextMute = settings.muted !== 'true';
+        settings.muted = nextMute ? 'true' : 'false';
+        await window.api.updateSetting('muted', settings.muted);
+        updateMuteUI(nextMute);
+    });
+
+    // Listen for tray mute changes
+    window.api.onMuteStatusChanged((muted) => {
+        settings.muted = muted ? 'true' : 'false';
+        updateMuteUI(muted);
     });
 
     // Navigation

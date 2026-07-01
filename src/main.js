@@ -189,6 +189,10 @@ function setupTray() {
                     activeKeys.clear();
                 }
                 else uIOhook.start();
+                
+                if (win && !win.isDestroyed()) {
+                    win.webContents.send('mute-status-changed', is_muted);
+                }
             }
         },
         { label: t('tray.quit'), click: () => { app.isQuiting = true; app.quit(); } }

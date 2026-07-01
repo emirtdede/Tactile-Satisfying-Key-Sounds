@@ -34,6 +34,7 @@ contextBridge.exposeInMainWorld('api', {
     // Playback and UI Events from Main
     onLoadPackSounds: (callback) => ipcRenderer.on('load-pack-sounds', (e, data) => callback(data)),
     onPlaySound: (callback) => ipcRenderer.on('play-sound', (e, data) => callback(data)),
+    onMuteStatusChanged: (callback) => ipcRenderer.on('mute-status-changed', (e, muted) => callback(muted)),
     
     // System Integration
     getAppVersion: () => ipcRenderer.invoke('get-app-version')
