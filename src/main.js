@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut, nativeImage, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db/database');
@@ -15,6 +15,7 @@ const activeKeys = new Set();
 const SYSTRAY_ICON = path.join(__dirname, 'assets/system-tray-icon.png');
 
 async function initializeApp() {
+    app.setAppUserModelId('dev.vellium.tactile');
     console.log("App ready. Initializing database...");
     await db.initDB();
     console.log("DB initialized. Loading default packs...");
@@ -373,12 +374,57 @@ ipcMain.handle('db-update-setting', (e, key, value) => {
     }
 });
 
-ipcMain.handle('set-dynamic-app-icon', (e, pngDataUrl) => {
+function updateShortcutIcons(iconType) {
+    try {
+        const userDataPath = app.getPath('userData');
+        const iconFileName = iconType === 'light' ? 'Tactile-light.ico' : 'Tactile-bg.ico';
+        const sourceIconPath = path.join(__dirname, '../public', iconFileName);
+        const destIconPath = path.join(userDataPath, iconFileName);
+        
+        if (!fs.existsSync(sourceIconPath)) {
+            console.warn("Source ICO file not found:", sourceIconPath);
+            return;
+        }
+        
+        // Copy to userData for permanence
+        fs.copyFileSync(sourceIconPath, destIconPath);
+        
+        const targets = [
+            path.join(app.getPath('desktop'), 'Tactile.lnk'),
+            path.join(app.getPath('appData'), 'Microsoft/Windows/Start Menu/Programs/Tactile.lnk'),
+            path.join(app.getPath('appData'), 'Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Tactile.lnk')
+        ];
+        
+        const now = new Date();
+        targets.forEach(shortcutPath => {
+            if (fs.existsSync(shortcutPath)) {
+                const updateSuccess = shell.writeShortcutLink(shortcutPath, 'update', {
+                    icon: destIconPath,
+                    iconIndex: 0
+                });
+                if (updateSuccess) {
+                    console.log(`Shortcut icon updated: ${shortcutPath}`);
+                    fs.utimesSync(shortcutPath, now, now);
+                } else {
+                    console.warn(`Failed to update shortcut: ${shortcutPath}`);
+                }
+            }
+        });
+    } catch (err) {
+        console.error("Failed to update shortcut icons:", err);
+    }
+}
+
+ipcMain.handle('set-dynamic-app-icon', (e, pngDataUrl, iconType) => {
     if (!win || win.isDestroyed()) return;
     try {
         const image = nativeImage.createFromDataURL(pngDataUrl);
         win.setIcon(image);
         console.log("Dynamically set app icon from data URL");
+        
+        if (iconType) {
+            updateShortcutIcons(iconType);
+        }
     } catch (err) {
         console.error("Failed to dynamically set app icon:", err);
     }

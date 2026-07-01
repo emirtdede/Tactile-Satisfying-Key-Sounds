@@ -53,6 +53,6 @@ contextBridge.exposeInMainWorld('api', {
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
     registerShortcut: (shortcut) => ipcRenderer.invoke('register-shortcut', shortcut),
     unregisterShortcut: () => ipcRenderer.invoke('unregister-shortcut'),
-    setDynamicAppIcon: (pngDataUrl) => ipcRenderer.invoke('set-dynamic-app-icon', pngDataUrl),
+    setDynamicAppIcon: (pngDataUrl, iconType) => ipcRenderer.invoke('set-dynamic-app-icon', pngDataUrl, iconType),
     getSvgDataUri: (iconType) => ipcRenderer.invoke('get-svg-data-uri', iconType)
 });
