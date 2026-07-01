@@ -417,6 +417,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateMuteUI(muted);
     });
 
+    window.api.onVolumeChanged((vol) => {
+        settings.volume = vol.toString();
+        document.getElementById('global-volume').value = vol;
+        const hVol = vol / 100;
+        Object.values(audio_instances).forEach(h => h.volume(hVol));
+    });
+
     // Apply initial values for new settings
     const traySingleSelect = document.getElementById('setting-tray-single');
     const trayDoubleSelect = document.getElementById('setting-tray-double');
@@ -426,10 +433,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (traySingleSelect) traySingleSelect.value = settings.tray_click_single || 'open';
     if (trayDoubleSelect) trayDoubleSelect.value = settings.tray_click_double || 'none';
     
+    const formatShortcutForUser = (shortcut) => {
+        if (!shortcut) return '';
+        return shortcut
+            .replace(/Control/g, 'CTRL')
+            .replace(/CommandOrControl/g, 'CTRL')
+            .replace(/Shift/g, 'SHIFT')
+            .replace(/Alt/g, 'ALT')
+            .replace(/Meta/g, 'META')
+            .split('+')
+            .join(' + ');
+    };
+    
     const updateShortcutButtonLabel = () => {
         const currentShortcut = settings.shortcut_toggle_mute || '';
         if (currentShortcut) {
-            btnRecordShortcut.innerText = currentShortcut;
+            btnRecordShortcut.innerText = formatShortcutForUser(currentShortcut);
         } else {
             btnRecordShortcut.innerText = t('settings.shortcut_record_placeholder');
         }

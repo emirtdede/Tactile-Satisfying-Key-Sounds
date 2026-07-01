@@ -235,6 +235,20 @@ function setupTray() {
                 if (win && !win.isDestroyed()) {
                     win.webContents.send('mute-status-changed', is_muted);
                 }
+            } else if (action === 'vol_up') {
+                let vol = parseInt(db.getSetting('volume') || '50');
+                vol = Math.min(100, vol + 10);
+                db.setSetting('volume', vol.toString());
+                if (win && !win.isDestroyed()) {
+                    win.webContents.send('volume-changed', vol);
+                }
+            } else if (action === 'vol_down') {
+                let vol = parseInt(db.getSetting('volume') || '50');
+                vol = Math.max(0, vol - 10);
+                db.setSetting('volume', vol.toString());
+                if (win && !win.isDestroyed()) {
+                    win.webContents.send('volume-changed', vol);
+                }
             }
         };
 
