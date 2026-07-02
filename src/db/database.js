@@ -113,6 +113,7 @@ async function initDB() {
             theme: 'dark',
             selected_profile: 'default',
             language: 'tr',
+            app_icon: 'light',
             tray_click_single: 'open',
             tray_click_double: 'none',
             shortcut_toggle_mute: 'Control+K'
@@ -129,6 +130,7 @@ async function initDB() {
     } else {
         // Upgrade check: ensure new settings exist for existing databases
         const newDefaults = {
+            app_icon: 'light',
             tray_click_single: 'open',
             tray_click_double: 'none',
             shortcut_toggle_mute: 'Control+K'

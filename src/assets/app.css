@@ -1,5 +1,5 @@
 :root {
-    --bg-base: rgba(26, 46, 64, 0.95);
+    --bg-base: #1A2E40;
     --bg-surface: rgba(36, 56, 74, 0.6);
     --bg-surface-hover: rgba(46, 66, 84, 0.8);
     --bg-sidebar: rgba(20, 36, 50, 0.95);
@@ -53,7 +53,7 @@ input, select, textarea, [contenteditable="true"] {
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: transparent;
+    background: var(--bg-base);
     color: var(--text-primary);
     height: 100vh;
     overflow: hidden;
@@ -67,8 +67,6 @@ body {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
 
 /* Titlebar */
@@ -600,8 +598,9 @@ input:checked + .slider:before {
 
 .about-container h2 {
     font-size: 26px;
-    margin-top: -30px;
+    margin-top: 0;
     margin-bottom: 2px;
+    line-height: 1.1;
 }
 
 .version {
@@ -718,9 +717,10 @@ input:checked + .slider:before {
 
 /* About / Developer styling */
 .about-app-logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 2px;
+    width: 136px;
+    height: 136px;
+    margin-top: -20px;
+    margin-bottom: -6px;
 }
 
 .about-subtitle {
@@ -1045,8 +1045,10 @@ input:checked + .slider:before {
         padding-top: 10px;
     }
     .about-app-logo {
-        width: 100px;
-        height: 100px;
+        width: 152px;
+        height: 152px;
+        margin-top: -28px;
+        margin-bottom: -10px;
     }
     .about-subtitle {
         margin-bottom: 12px;

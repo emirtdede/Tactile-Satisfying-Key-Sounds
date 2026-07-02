@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyAppIcon = async (iconType) => {
         try {
-            const dataUri = await window.api.getSvgDataUri(iconType + '-small');
+            const dataUri = await window.api.getSvgDataUri(iconType);
             if (!dataUri) return;
             const pngDataUrl = await rasterizeSvgToPng(dataUri);
             await window.api.setDynamicAppIcon(pngDataUrl, iconType);
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const appIconSelect = document.getElementById('setting-app-icon');
     if (appIconSelect) {
-        appIconSelect.value = settings.app_icon || 'dark';
+        appIconSelect.value = settings.app_icon || 'light';
         appIconSelect.addEventListener('change', async (e) => {
             const nextIcon = e.target.value;
             settings.app_icon = nextIcon;
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Apply app icon on startup
-    applyAppIcon(settings.app_icon || 'dark');
+    applyAppIcon(settings.app_icon || 'light');
 
     // Settings event listeners
     document.getElementById('global-volume').addEventListener('input', (e) => {

@@ -6,8 +6,9 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build:all": "electron-builder -wml",
-    "build:win": "electron-builder -w",
+    "build:icons": "node tools/build-icons.js",
+    "build:all": "node tools/build-icons.js && electron-builder -wml && node tools/refresh-icon-cache.js",
+    "build:win": "node tools/build-icons.js && electron-builder -w && node tools/refresh-icon-cache.js",
     "build:mac": "electron-builder -m",
     "build:linux": "electron-builder -l",
     "build:clean": "node tools/clean-dist.js",
@@ -22,7 +23,7 @@
   "license": "MIT",
   "build": {
     "appId": "dev.vellium.tactile",
-    "copyright": "Copyright © 2026 Vellium. All rights reserved.",
+    "copyright": "Copyright (c) 2026 Vellium. All rights reserved.",
     "appx": {
       "publisher": "CN=VelliumPublisher",
       "identityName": "TactileApp",
@@ -33,6 +34,10 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "include": "./build/installer.nsh",
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/uninstallerIcon.ico",
+      "installerHeaderIcon": "build/installerHeaderIcon.ico",
+      "installerHeader": "build/installerHeader.bmp",
       "uninstallDisplayName": "Tactile"
     },
     "win": {
@@ -51,7 +56,7 @@
           ]
         }
       ],
-      "icon": "public/Tactile-bg.ico"
+      "icon": "build/icon.ico"
     },
     "mac": {
       "category": "public.app-category.entertainment",

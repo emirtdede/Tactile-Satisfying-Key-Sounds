@@ -1,6 +1,8 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut, nativeImage, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
+const { execFile } = require('child_process');
 const db = require('./db/database');
 const { uIOhook } = require('uiohook-napi');
 const { keycodesRemap } = require('./libs/keycodes');
@@ -13,6 +15,46 @@ let is_muted = false;
 const activeKeys = new Set();
 
 const SYSTRAY_ICON = path.join(__dirname, 'assets/system-tray-icon.png');
+
+function normalizeAppIconType(iconType) {
+    return iconType === 'dark' ? 'dark' : 'light';
+}
+
+function getAppIconPath(iconType = 'light') {
+    const normalizedIconType = normalizeAppIconType(iconType);
+    const iconFileName = normalizedIconType === 'dark' ? 'Tactile-bg.ico' : 'Tactile-light.ico';
+    return path.join(__dirname, '../public', iconFileName);
+}
+
+function getSharedShortcutIconPath(iconFileName) {
+    return process.env.ProgramData ? path.join(process.env.ProgramData, 'Tactile', 'Icons', iconFileName) : null;
+}
+
+function getWindowIconPath(iconType = db.getSetting('app_icon') || 'light') {
+    if (process.platform !== 'win32') {
+        return path.join(__dirname, 'assets', 'icon.png');
+    }
+
+    return getAppIconPath(iconType);
+}
+
+function applyWindowIcon(iconType) {
+    if (process.platform !== 'win32' || !win || win.isDestroyed()) return;
+
+    const iconPath = getAppIconPath(iconType);
+    if (!fs.existsSync(iconPath)) {
+        console.warn("Window icon source not found:", iconPath);
+        return;
+    }
+
+    const image = nativeImage.createFromPath(iconPath);
+    if (image.isEmpty()) {
+        console.warn("Window icon image is empty:", iconPath);
+        return;
+    }
+
+    win.setIcon(image);
+}
 
 async function initializeApp() {
     app.setAppUserModelId('dev.vellium.tactile');
@@ -28,6 +70,7 @@ async function initializeApp() {
     setupHook();
     setupTray();
     registerGlobalShortcut();
+    updateShortcutIcons(db.getSetting('app_icon') || 'light');
     
     const profiles = db.getProfiles();
     console.log("Loaded profiles count:", profiles.length);
@@ -196,7 +239,7 @@ function createWindow(show) {
         frame: false, // Custom titlebar
         transparent: false,
         backgroundColor: '#1A2E40', // Deep navy background
-        icon: path.join(__dirname, 'assets', 'icon.png'),
+        icon: getWindowIconPath(),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -353,7 +396,7 @@ ipcMain.handle('db-get-settings', () => {
         start_minimized: db.getSetting('start_minimized') || 'false',
         tray_icon: db.getSetting('tray_icon') || 'true',
         theme: db.getSetting('theme') || 'dark',
-        app_icon: db.getSetting('app_icon') || 'dark',
+        app_icon: db.getSetting('app_icon') || 'light',
         selected_profile: db.getSetting('selected_profile') || 'default',
         muted: db.getSetting('muted') || 'false',
         tray_click_single: db.getSetting('tray_click_single') || 'open',
@@ -377,57 +420,220 @@ ipcMain.handle('db-update-setting', (e, key, value) => {
         else uIOhook.start();
     }
     if (key === 'app_icon') {
-        // App icon updates are handled dynamically via set-dynamic-app-icon IPC handler
+        applyWindowIcon(value);
+        updateShortcutIcons(value);
     }
 });
 
 function updateShortcutIcons(iconType) {
+    if (process.platform !== 'win32') return;
+
     try {
+        const normalizedIconType = normalizeAppIconType(iconType);
         const userDataPath = app.getPath('userData');
-        const iconFileName = iconType === 'light' ? 'Tactile-light.ico' : 'Tactile-bg.ico';
-        const sourceIconPath = path.join(__dirname, '../public', iconFileName);
-        const destIconPath = path.join(userDataPath, iconFileName);
+        const iconFileName = normalizedIconType === 'light' ? 'Tactile-light.ico' : 'Tactile-bg.ico';
+        const sourceIconPath = getAppIconPath(normalizedIconType);
         
         if (!fs.existsSync(sourceIconPath)) {
             console.warn("Source ICO file not found:", sourceIconPath);
             return;
         }
         
-        // Copy to userData for permanence
-        fs.copyFileSync(sourceIconPath, destIconPath);
+        const sourceIconBuffer = fs.readFileSync(sourceIconPath);
+        const iconHash = crypto.createHash('sha256').update(sourceIconBuffer).digest('hex').slice(0, 10);
+        const iconBaseName = path.basename(iconFileName, '.ico');
+        const managedIconFileName = `${iconBaseName}-${iconHash}.ico`;
+        const destIconPath = path.join(userDataPath, managedIconFileName);
+        const sharedIconPath = writeSharedShortcutIcon(sourceIconBuffer, managedIconFileName);
+
+        // Keep shortcut icons outside app.asar so Windows can load them directly.
+        fs.writeFileSync(destIconPath, sourceIconBuffer);
         
-        const targets = [
-            path.join(app.getPath('desktop'), 'Tactile.lnk'),
-            path.join(app.getPath('appData'), 'Microsoft/Windows/Start Menu/Programs/Tactile.lnk'),
-            path.join(app.getPath('appData'), 'Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Tactile.lnk')
-        ];
-        
+        const targets = getShortcutTargets();
         const now = new Date();
+        let updatedCount = 0;
+
         targets.forEach(shortcutPath => {
-            if (fs.existsSync(shortcutPath)) {
-                const updateSuccess = shell.writeShortcutLink(shortcutPath, 'update', {
-                    icon: destIconPath,
-                    iconIndex: 0
-                });
-                if (updateSuccess) {
-                    console.log(`Shortcut icon updated: ${shortcutPath}`);
-                    fs.utimesSync(shortcutPath, now, now);
-                } else {
-                    console.warn(`Failed to update shortcut: ${shortcutPath}`);
-                }
+            if (!fs.existsSync(shortcutPath)) return;
+
+            const shortcutIconPath = shouldUseSharedShortcutIcon(shortcutPath) && sharedIconPath
+                ? sharedIconPath
+                : destIconPath;
+
+            if (writeShortcutIcon(shortcutPath, shortcutIconPath, now)) {
+                updatedCount++;
+                console.log(`Shortcut icon updated: ${shortcutPath}`);
+            } else {
+                console.warn(`Failed to update shortcut: ${shortcutPath}`);
             }
         });
+
+        console.log(`Shortcut icon update complete. Updated ${updatedCount}/${targets.length} shortcuts.`);
+        refreshExplorerIconCache();
     } catch (err) {
         console.error("Failed to update shortcut icons:", err);
     }
 }
 
+function writeSharedShortcutIcon(iconBuffer, iconFileName) {
+    const sharedIconPath = getSharedShortcutIconPath(iconFileName);
+    if (!sharedIconPath) return null;
+
+    try {
+        fs.mkdirSync(path.dirname(sharedIconPath), { recursive: true });
+        fs.writeFileSync(sharedIconPath, iconBuffer);
+        fs.utimesSync(sharedIconPath, new Date(), new Date());
+        return sharedIconPath;
+    } catch (err) {
+        console.warn("Shared shortcut icon is not writable:", sharedIconPath, err.message);
+        return fs.existsSync(sharedIconPath) ? sharedIconPath : null;
+    }
+}
+
+function shouldUseSharedShortcutIcon(shortcutPath) {
+    const normalizedShortcutPath = path.normalize(shortcutPath).toLowerCase();
+    const sharedRoots = [];
+
+    if (process.env.PUBLIC) {
+        sharedRoots.push(path.normalize(path.join(process.env.PUBLIC, 'Desktop')).toLowerCase());
+    }
+
+    if (process.env.ProgramData) {
+        sharedRoots.push(path.normalize(path.join(process.env.ProgramData, 'Microsoft/Windows/Start Menu/Programs')).toLowerCase());
+    }
+
+    return sharedRoots.some(rootPath => normalizedShortcutPath.startsWith(`${rootPath}${path.sep.toLowerCase()}`) || normalizedShortcutPath === rootPath);
+}
+
+function writeShortcutIcon(shortcutPath, iconPath, timestamp) {
+    let existingShortcut = null;
+    try {
+        existingShortcut = shell.readShortcutLink(shortcutPath);
+    } catch (err) {}
+
+    const shortcutOptions = {
+        icon: iconPath,
+        iconIndex: 0
+    };
+
+    let updateSuccess = shell.writeShortcutLink(shortcutPath, 'update', shortcutOptions);
+    if (existingShortcut && existingShortcut.target) {
+        if (!updateSuccess) {
+            updateSuccess = shell.writeShortcutLink(shortcutPath, 'replace', {
+                ...existingShortcut,
+                ...shortcutOptions
+            });
+        }
+    }
+
+    if (updateSuccess) {
+        fs.utimesSync(shortcutPath, timestamp, timestamp);
+    }
+
+    return updateSuccess;
+}
+
+function getShortcutTargets() {
+    const knownCandidates = [
+            path.join(app.getPath('desktop'), 'Tactile.lnk'),
+            path.join(app.getPath('appData'), 'Microsoft/Windows/Start Menu/Programs/Tactile.lnk'),
+            path.join(app.getPath('appData'), 'Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar/Tactile.lnk'),
+            path.join(app.getPath('appData'), 'Microsoft/Windows/Start Menu/Programs/Tactile/Tactile.lnk')
+    ];
+    const searchRoots = [
+        app.getPath('desktop'),
+        path.join(app.getPath('appData'), 'Microsoft/Windows/Start Menu/Programs'),
+        path.join(app.getPath('appData'), 'Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar')
+    ];
+
+    if (process.env.PUBLIC) {
+        knownCandidates.push(path.join(process.env.PUBLIC, 'Desktop/Tactile.lnk'));
+        searchRoots.push(path.join(process.env.PUBLIC, 'Desktop'));
+    }
+
+    if (process.env.ProgramData) {
+        const programDataPrograms = path.join(process.env.ProgramData, 'Microsoft/Windows/Start Menu/Programs');
+        knownCandidates.push(path.join(programDataPrograms, 'Tactile.lnk'));
+        knownCandidates.push(path.join(programDataPrograms, 'Tactile/Tactile.lnk'));
+        searchRoots.push(programDataPrograms);
+    }
+
+    const discoveredCandidates = searchRoots.flatMap(root => findTactileShortcuts(root, 2));
+    return [...new Set([...knownCandidates, ...discoveredCandidates].map(shortcutPath => path.normalize(shortcutPath)))];
+}
+
+function findTactileShortcuts(rootPath, maxDepth) {
+    const results = [];
+    if (!rootPath || !fs.existsSync(rootPath)) return results;
+
+    const walk = (currentPath, depth) => {
+        let entries = [];
+        try {
+            entries = fs.readdirSync(currentPath, { withFileTypes: true });
+        } catch (err) {
+            return;
+        }
+
+        entries.forEach(entry => {
+            const entryPath = path.join(currentPath, entry.name);
+            if (entry.isDirectory()) {
+                if (depth < maxDepth) walk(entryPath, depth + 1);
+                return;
+            }
+
+            if (!entry.isFile() || path.extname(entry.name).toLowerCase() !== '.lnk') return;
+            if (isTactileShortcut(entryPath)) results.push(entryPath);
+        });
+    };
+
+    walk(rootPath, 0);
+    return results;
+}
+
+function isTactileShortcut(shortcutPath) {
+    const shortcutName = path.basename(shortcutPath).toLowerCase();
+    if (shortcutName === 'tactile.lnk') return true;
+
+    try {
+        const shortcut = shell.readShortcutLink(shortcutPath);
+        return path.basename(shortcut.target || '').toLowerCase() === 'tactile.exe';
+    } catch (err) {
+        return false;
+    }
+}
+
+function cleanupOldManagedIcons(userDataPath, activeIconPath) {
+    try {
+        fs.readdirSync(userDataPath)
+            .filter(fileName => /^Tactile-(bg|light)-[a-f0-9]{10}\.ico$/i.test(fileName))
+            .map(fileName => path.join(userDataPath, fileName))
+            .filter(iconPath => path.normalize(iconPath).toLowerCase() !== path.normalize(activeIconPath).toLowerCase())
+            .forEach(iconPath => fs.rmSync(iconPath, { force: true }));
+    } catch (err) {
+        console.warn("Failed to clean old shortcut icons:", err);
+    }
+}
+
+function refreshExplorerIconCache() {
+    const ie4uinit = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32/ie4uinit.exe');
+    if (!fs.existsSync(ie4uinit)) return;
+
+    execFile(ie4uinit, ['-ClearIconCache'], { windowsHide: true }, () => {});
+    execFile(ie4uinit, ['-show'], { windowsHide: true }, () => {});
+}
+
 ipcMain.handle('set-dynamic-app-icon', (e, pngDataUrl, iconType) => {
     if (!win || win.isDestroyed()) return;
     try {
-        const image = nativeImage.createFromDataURL(pngDataUrl);
-        win.setIcon(image);
-        console.log("Dynamically set app icon from data URL");
+        let image = nativeImage.createFromDataURL(pngDataUrl);
+        if (image.isEmpty() && iconType) {
+            image = nativeImage.createFromPath(getAppIconPath(iconType));
+        }
+
+        if (!image.isEmpty()) {
+            win.setIcon(image);
+            console.log("Dynamically set app icon");
+        }
         
         if (iconType) {
             updateShortcutIcons(iconType);
