@@ -51,7 +51,7 @@
           ]
         }
       ],
-      "icon": "src/assets/icon.png"
+      "icon": "public/Tactile-bg.ico"
     },
     "mac": {
       "category": "public.app-category.entertainment",
